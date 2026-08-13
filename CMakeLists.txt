@@ -14,6 +14,6 @@ set(SDL_TESTS OFF CACHE INTERNAL "" FORCE)
 set(SDL_EXAMPLES OFF CACHE INTERNAL "" FORCE)
 add_subdirectory(vendor/SDL)
 
-add_executable(${PROJECT_NAME} WIN32 src/main.cpp src/ui/UiButton.cpp src/scene/MainScene.cpp)
+add_executable(${PROJECT_NAME} WIN32 src/main.cpp src/InputManager.cpp src/SceneManager.cpp src/ui/UiButton.cpp src/scene/MainScene.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static)

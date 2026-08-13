@@ -10,7 +10,7 @@ public:
     MainScene();
     ~MainScene();
 
-    void draw(SDL_Renderer * renderer);
+    Action update(std::vector<Input> inputs);
 };
 
 #endif // MAIN_SCENE_HPP

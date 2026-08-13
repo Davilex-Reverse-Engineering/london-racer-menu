@@ -9,15 +9,13 @@
 
 class UiButton : public UiElement {
 public:
-  UiButton(float x, float y, float width, float height, std::string text, bool selected);
+  UiButton(float x, float y, float width, float height, std::string text, Action action = Action::NONE);
   ~UiButton();
 
-  void draw(SDL_Renderer * renderer);
+  void draw(SDL_Renderer * renderer, bool selected = false);
 
 private:
-  SDL_FRect rect = {0.0f, 0.0f, 0.0f, 0.0f};
   std::string text_string = "";
-  bool selected = false;
 };
 
 #endif // UI_BUTTON_HPP
