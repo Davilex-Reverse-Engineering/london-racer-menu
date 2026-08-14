@@ -14,25 +14,7 @@ public:
     virtual ~Scene() {};
 
     virtual Action update(std::vector<Input> inputs) {
-      return this->updateUiElements(inputs);
-      // for (Input input : inputs) {
-      //   if (input.type == InputType::BUTTON) {
-      //     switch (input.event) {
-      //     case InputEvent::BUTTON_LEFT:
-      //       this->selected--;
-      //       if (this->selected > this->ui_elements.size() - 1) {
-      //         this->selected = this->ui_elements.size() - 1;
-      //       }
-      //       break;
-      //     case InputEvent::BUTTON_RIGHT:
-      //       /* code */
-      //       break;
-      //     default:
-      //       break;
-      //     }
-      //   }
-
-      // }
+      return this->processInputs(inputs);
     };
 
     virtual void draw(SDL_Renderer *renderer) {
@@ -45,29 +27,86 @@ protected:
   std::vector<UiElement*> ui_elements;
   size_t selected = 0;
 
-  Action updateUiElements(std::vector<Input> inputs) {
-    for (Input input : inputs) {
-      if (input.type == InputType::POSITIONED) {
-        UiElement * mouse_element = NULL;
-        for(size_t i = 0; i < ui_elements.size(); i++) {
-          if (ui_elements[i]->isPointOnElement(&input.position)) {
-            mouse_element = ui_elements[i];
-            if (mouse_element->isSelectable()) {
-              selected = i;
-            }
-            break;
+  Action processButtonInput(Input input) {
+    switch(input.event) {
+      case InputEvent::BUTTON_CONFIRM:
+        {
+          Action action = ui_elements[selected]->getAction();
+          if (action != Action::NONE) {
+            return action;
           }
         }
-        if (mouse_element && input.event == InputEvent::MOUSE_LEFT_RELEASED) {
-          return mouse_element->getAction();
+        break;
+      case InputEvent::BUTTON_LEFT:
+        this->selected--;
+        while (this->selected > this->ui_elements.size() || !this->ui_elements[selected]->isSelectable()) {
+          if (this->selected > this->ui_elements.size()) {
+            this->selected = this->ui_elements.size() - 1;
+          } else {
+            this->selected--;
+          }
         }
-      } else if (input.type == InputType::BUTTON) {
-        if (input.event == InputEvent::BUTTON_CONFIRM) {
-          return ui_elements[selected]->getAction();
+        break;
+      case InputEvent::BUTTON_RIGHT:
+        this->selected++;
+        while (this->selected >= this->ui_elements.size() || !this->ui_elements[selected]->isSelectable()) {
+          if (this->selected >= this->ui_elements.size()) {
+            this->selected = 0;
+          } else {
+            this->selected++;
+          }
         }
-      }
+        break;
+      default:
+        break;
     }
     return Action::NONE;
+  };
+
+  Action processPositionedInput(Input input) {
+    UiElement * mouse_element = NULL;
+    for(size_t i = 0; i < ui_elements.size(); i++) {
+      if (ui_elements[i]->isPointOnElement(&input.position)) {
+        mouse_element = ui_elements[i];
+        if (mouse_element->isSelectable()) {
+          selected = i;
+        }
+        break;
+      }
+    }
+    Action action = Action::NONE;
+    if (mouse_element && input.event == InputEvent::MOUSE_LEFT_RELEASED) {
+      action = mouse_element->getAction();
+      if(action != Action::NONE) {
+        return action;
+      }
+    }
+    return action;
+  };
+
+  Action processInputs(std::vector<Input> inputs) {
+    Action action = Action::NONE;
+    for (Input input : inputs) {
+      switch(input.type) {
+        case InputType::BUTTON:
+          SDL_HideCursor();
+          action = processButtonInput(input);
+          if (action != Action::NONE) {
+            return action;
+          }
+          break;
+        case InputType::POSITIONED:
+          SDL_ShowCursor();
+          action = processPositionedInput(input);
+          if (action != Action::NONE) {
+            return action;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    return action;
   };
 };
 

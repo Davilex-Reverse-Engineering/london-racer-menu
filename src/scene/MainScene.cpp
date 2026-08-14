@@ -20,5 +20,5 @@ MainScene::~MainScene()
 
 Action MainScene::update(std::vector<Input> inputs)
 {
-  return this->updateUiElements(inputs);
+  return this->processInputs(inputs);
 }

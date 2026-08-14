@@ -21,6 +21,7 @@ public:
 private:
   Scene * scene = NULL;
   SDL_Texture * background = NULL;
+  bool background_loaded = false;
 };
 
 #endif // SCENE_MANAGER_HPP

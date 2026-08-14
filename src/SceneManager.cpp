@@ -28,17 +28,18 @@ Action SceneManager::update(std::vector<Input> inputs)
 
 void SceneManager::draw(SDL_Renderer *renderer)
 {
-  if (!this->background) {
+  if (!this->background && !background_loaded) {
     SDL_Surface * background_surface = SDL_LoadBMP("BKGR.bmp");
-    if (!background_surface) {
+    if (background_surface) {
+      this->background = SDL_CreateTextureFromSurface(renderer, background_surface);
+      SDL_DestroySurface(background_surface);
+      if (!this->background) {
+        SDL_Log("Could not load image BKGR.bmp as texture");
+      }
+    } else {
       SDL_Log("Could not load image BKGR.bmp");
     }
-
-    this->background = SDL_CreateTextureFromSurface(renderer, background_surface);
-    SDL_DestroySurface(background_surface);
-    if (!this->background) {
-      SDL_Log("Could not load image BKGR.bmp as texture");
-    }
+    background_loaded = true;
   }
   if (this->background) {
     SDL_RenderTexture(renderer, this->background, NULL, NULL);
