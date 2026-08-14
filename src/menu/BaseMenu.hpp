@@ -94,12 +94,9 @@ protected:
   Action processPositionedInput(Input input) {
     UiElement * mouse_element = NULL;
     for(size_t i = 0; i < ui_elements.size(); i++) {
-      if (ui_elements[i]->isPointOnElement(&input.position)) {
+      if (ui_elements[i]->isSelectable() && ui_elements[i]->isPointOnElement(&input.position)) {
         mouse_element = ui_elements[i];
-        if (mouse_element->isSelectable()) {
-          selected = i;
-        }
-        break;
+        selected = i;
       }
     }
     Action action = Action::NONE;
