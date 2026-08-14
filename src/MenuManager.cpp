@@ -1,8 +1,11 @@
 #include "MenuManager.hpp"
 
+#include <typeinfo>
+
 #include "menu/RaceMenu.hpp"
 #include "menu/TournamentMenu.hpp"
 #include "menu/SundayCup.hpp"
+#include "menu/Options.hpp"
 
 MenuManager::MenuManager()
 {
@@ -35,14 +38,16 @@ Action MenuManager::update(std::vector<Input> inputs)
       delete this->menu;
       this->menu = new SundayCup();
       break;
+    case Action::OPEN_OPTIONS:
+      delete this->menu;
+      this->menu = new Options();
+      break;
+    case Action::START:
     case Action::QUIT:
       return action;
       break;
-  default:
-    break;
-  }
-  if (action == Action::QUIT) {
-    return action;
+    default:
+      break;
   }
   return Action::NONE;
 }

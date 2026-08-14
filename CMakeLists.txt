@@ -23,6 +23,7 @@ add_executable(${PROJECT_NAME} WIN32
   src/menu/RaceMenu.cpp
   src/menu/TournamentMenu.cpp
   src/menu/SundayCup.cpp
+  src/menu/Options.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static)
