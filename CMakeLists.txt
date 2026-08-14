@@ -20,6 +20,7 @@ add_executable(${PROJECT_NAME} WIN32
   src/MenuManager.cpp
   src/ui/UiButton.cpp
   src/menu/RaceMenu.cpp
+  src/menu/TournamentMenu.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static)

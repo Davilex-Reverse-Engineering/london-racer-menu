@@ -1,10 +1,11 @@
 #include "MenuManager.hpp"
 
 #include "menu/RaceMenu.hpp"
+#include "menu/TournamentMenu.hpp"
 
 MenuManager::MenuManager()
 {
-  this->scene = new RaceMenu();
+  this->menu = new RaceMenu();
 }
 
 MenuManager::~MenuManager()
@@ -12,14 +13,29 @@ MenuManager::~MenuManager()
   if (this->background) {
     SDL_DestroyTexture(this->background);
   }
-  if (this->scene) {
-    delete this->scene;
+  if (this->menu) {
+    delete this->menu;
   }
 }
 
 Action MenuManager::update(std::vector<Input> inputs)
 {
-  Action action = scene->update(inputs);
+  Action action = menu->update(inputs);
+  switch (action) {
+    case Action::OPEN_RACE_MENU:
+      delete this->menu;
+      this->menu = new RaceMenu();
+      break;
+    case Action::OPEN_TOURNAMENT_MENU:
+      delete this->menu;
+      this->menu = new TournamentMenu();
+      break;
+    case Action::QUIT:
+      return action;
+      break;
+  default:
+    break;
+  }
   if (action == Action::QUIT) {
     return action;
   }
@@ -44,5 +60,5 @@ void MenuManager::draw(SDL_Renderer *renderer)
   if (this->background) {
     SDL_RenderTexture(renderer, this->background, NULL, NULL);
   }
-  scene->draw(renderer);
+  menu->draw(renderer);
 }

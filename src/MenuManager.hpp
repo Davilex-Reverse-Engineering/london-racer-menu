@@ -19,7 +19,7 @@ public:
   void draw(SDL_Renderer *renderer);
 
 private:
-  BaseMenu * scene = NULL;
+  BaseMenu * menu = NULL;
   SDL_Texture * background = NULL;
   bool background_loaded = false;
 };

@@ -3,6 +3,8 @@
 
 enum class Action {
   NONE,
+  OPEN_RACE_MENU,
+  OPEN_TOURNAMENT_MENU,
   QUIT
 };
 
