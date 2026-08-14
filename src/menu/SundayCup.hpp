@@ -4,6 +4,7 @@
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
 #include "BaseMenu.hpp"
+#include "../ui/UiText.hpp"
 
 class SundayCup : public BaseMenu {
 public:
@@ -11,6 +12,10 @@ public:
     ~SundayCup();
 
     Action update(std::vector<Input> inputs);
+
+private:
+    int laps = 1;
+    UiText * text_laps = NULL;
 };
 
 #endif // SUNDAY_CUP_HPP

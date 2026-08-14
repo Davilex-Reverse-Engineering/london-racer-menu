@@ -14,6 +14,7 @@ public:
 
   void draw(SDL_Renderer * renderer, bool selected = false);
 
+  void setText(const std::string &text) {text_string = text;};
 private:
   std::string text_string = "";
   SDL_Color color = {255, 255, 255, 255};
