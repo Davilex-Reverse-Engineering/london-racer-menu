@@ -24,7 +24,15 @@ add_executable(${PROJECT_NAME} WIN32
   src/menu/TournamentMenu.cpp
   src/menu/SundayCup.cpp
   src/menu/TimeTrialMenu.cpp
+  src/menu/Showroom.cpp
+  src/menu/Garage.cpp
+  src/menu/HallOfFame.cpp
+  src/menu/PlayerMenu.cpp
   src/menu/Options.cpp
+  src/menu/Settings.cpp
+  src/menu/Controls.cpp
+  src/menu/TrackInfo.cpp
+  src/menu/League.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static)

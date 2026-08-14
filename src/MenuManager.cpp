@@ -6,7 +6,15 @@
 #include "menu/TournamentMenu.hpp"
 #include "menu/SundayCup.hpp"
 #include "menu/TimeTrialMenu.hpp"
+#include "menu/Showroom.hpp"
+#include "menu/Garage.hpp"
+#include "menu/HallOfFame.hpp"
+#include "menu/PlayerMenu.hpp"
 #include "menu/Options.hpp"
+#include "menu/Controls.hpp"
+#include "menu/Settings.hpp"
+#include "menu/TrackInfo.hpp"
+#include "menu/League.hpp"
 
 MenuManager::MenuManager()
 {
@@ -47,10 +55,60 @@ Action MenuManager::update(std::vector<Input> inputs)
       this->menu = new TimeTrialMenu();
       current_menu = Menu::TIME_TRIAL_MENU;
       break;
+    case Action::OPEN_SHOWROOM:
+      delete this->menu;
+      this->menu = new Showroom();
+      current_menu = Menu::SHOWROOM;
+      break;
+    case Action::OPEN_GARAGE:
+      delete this->menu;
+      this->menu = new Garage();
+      current_menu = Menu::GARAGE;
+      break;
+    case Action::OPEN_HALL_OF_FAME:
+      delete this->menu;
+      this->menu = new HallOfFame();
+      current_menu = Menu::HALL_OF_FAME;
+      break;
+    case Action::OPEN_PLAYER_MENU:
+      delete this->menu;
+      this->menu = new Garage();
+      current_menu = Menu::GARAGE;
+      break;
     case Action::OPEN_OPTIONS:
       delete this->menu;
       this->menu = new Options(current_menu);
       current_menu = Menu::OPTIONS;
+      break;
+    case Action::OPEN_CONTROLS:
+      delete this->menu;
+      this->menu = new Controls();
+      current_menu = Menu::CONTROLS;
+      break;
+    case Action::OPEN_SETTINGS:
+      delete this->menu;
+      this->menu = new Settings();
+      current_menu = Menu::SETTINGS;
+      break;
+    case Action::OPEN_TRACK_INFO:
+      delete this->menu;
+      this->menu = new TrackInfo();
+      current_menu = Menu::TRACK_INFO;
+      break;
+    case Action::OPEN_LEAGUE_ONE:
+      delete this->menu;
+      this->menu = new League(1);
+      current_menu = Menu::LEAGUE_ONE;
+      break;
+    case Action::OPEN_LEAGUE_TWO:
+      delete this->menu;
+      this->menu = new League(2);
+      current_menu = Menu::LEAGUE_TWO;
+      break;
+    case Action::OPEN_LEAGUE_THREE:
+      delete this->menu;
+      this->menu = new League(3);
+      current_menu = Menu::LEAGUE_THREE;
       break;
     case Action::START:
     case Action::QUIT:
