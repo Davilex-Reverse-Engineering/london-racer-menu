@@ -32,15 +32,15 @@ std::vector<Input> InputManager::getInputs() {
             input.event = InputEvent::BUTTON_CONFIRM;
             break;
           case SDLK_A:
-          case SDLK_W:
+          case SDLK_S:
           case SDLK_LEFT:
-          case SDLK_UP:
+          case SDLK_DOWN:
             input.event = InputEvent::BUTTON_LEFT;
             break;
           case SDLK_D:
-          case SDLK_S:
+          case SDLK_W:
           case SDLK_RIGHT:
-          case SDLK_DOWN:
+          case SDLK_UP:
             input.event = InputEvent::BUTTON_RIGHT;
             break;
         default:

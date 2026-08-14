@@ -11,7 +11,13 @@
 
 class Scene {
 public:
-    virtual ~Scene() {};
+    virtual ~Scene() {
+      for(UiElement * element : ui_elements) {
+        if (element) {
+          delete element;
+        }
+      }
+    };
 
     virtual Action update(std::vector<Input> inputs) {
       return this->processInputs(inputs);
