@@ -92,7 +92,7 @@ Action MenuManager::update(std::vector<Input> inputs)
       break;
     case Action::OPEN_TRACK_INFO:
       delete this->menu;
-      this->menu = new TrackInfo();
+      this->menu = new TrackInfo(current_menu);
       current_menu = Menu::TRACK_INFO;
       break;
     case Action::OPEN_LEAGUE_ONE:
