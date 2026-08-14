@@ -20,6 +20,7 @@ add_executable(${PROJECT_NAME} WIN32
   src/MenuManager.cpp
   src/ui/UiButton.cpp
   src/ui/UiRectangle.cpp
+  src/ui/UiText.cpp
   src/menu/RaceMenu.cpp
   src/menu/TournamentMenu.cpp
   src/menu/SundayCup.cpp
