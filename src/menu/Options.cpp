@@ -8,9 +8,12 @@ Options::Options(Menu last_menu)
   Action back_action = this->get_exit_action(last_menu);
 
   // Items are added from bottom left to top right
-  this->ui_elements.push_back(new UiButton(10.0f, 415.0f, 100.0f, 50.0f, "Exit", back_action));
+  this->ui_elements.push_back(new UiButton(10.0f, 415.0f, 100.0f, 50.0f, "Back", back_action));
+  this->ui_elements.push_back(new UiButton(10.0f, 360.0f, 100.0f, 50.0f, "Player", Action::OPEN_PLAYER_MENU));
+  this->ui_elements.push_back(new UiButton(10.0f, 305.0f, 100.0f, 50.0f, "Settings", Action::OPEN_SETTINGS));
+  this->ui_elements.push_back(new UiButton(10.0f, 250.0f, 100.0f, 50.0f, "Controls", Action::OPEN_CONTROLS));
 
-  this->selected = 0;
+  this->selected = 3;
 }
 
 Options::~Options()

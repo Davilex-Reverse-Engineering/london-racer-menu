@@ -67,7 +67,7 @@ Action MenuManager::update(std::vector<Input> inputs)
       break;
     case Action::OPEN_HALL_OF_FAME:
       delete this->menu;
-      this->menu = new HallOfFame();
+      this->menu = new HallOfFame(current_menu);
       current_menu = Menu::HALL_OF_FAME;
       break;
     case Action::OPEN_PLAYER_MENU:

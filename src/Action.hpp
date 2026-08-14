@@ -29,6 +29,13 @@ enum class Action {
   INCREASE_LAPS,
   DECREASE_LAPS,
   BUY_CAR,
+  NEW_PLAYER,
+  SAVE,
+  LOAD,
+  CHANGE_NAME,
+  DELETE_PLAYER,
+  OK,
+  CONFIGURE,
   START,
   QUIT
 };
