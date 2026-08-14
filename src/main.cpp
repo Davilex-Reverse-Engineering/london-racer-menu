@@ -4,7 +4,7 @@
 #include "../vendor/SDL/include/SDL3/SDL_main.h"
 
 #include "InputManager.hpp"
-#include "SceneManager.hpp"
+#include "MenuManager.hpp"
 
 int main(int argc, char** argv) {
   (void) argc;
@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
   }
 
   InputManager input_manager = InputManager();
-  SceneManager scene_manager = SceneManager();
+  MenuManager menu_manager = MenuManager();
 
   bool running = true;
   Action action;
@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
         break;
       }
     }
-    action = scene_manager.update(inputs);
+    action = menu_manager.update(inputs);
     if (action == Action::QUIT) {
       running = false;
       break;
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 
     // Clear the screen
     SDL_RenderClear(renderer);
-    scene_manager.draw(renderer);
+    menu_manager.draw(renderer);
 
     // Draw everything on a white background
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);

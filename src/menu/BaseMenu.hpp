@@ -1,6 +1,7 @@
-#ifndef SCENE_HPP
-#define SCENE_HPP
+#ifndef BASE_MENU_HPP
+#define BASE_MENU_HPP
 
+#include <string>
 #include <vector>
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
@@ -9,9 +10,9 @@
 #include "../Action.hpp"
 #include "../Input.hpp"
 
-class Scene {
+class BaseMenu {
 public:
-    virtual ~Scene() {
+    virtual ~BaseMenu() {
       for(UiElement * element : ui_elements) {
         if (element) {
           delete element;
@@ -32,6 +33,7 @@ public:
 protected:
   std::vector<UiElement*> ui_elements;
   size_t selected = 0;
+  std::string title = "";
 
   Action processButtonInput(Input input) {
     switch(input.event) {
@@ -116,4 +118,4 @@ protected:
   };
 };
 
-#endif // SCENE_HPP
+#endif // BASE_MENU_HPP

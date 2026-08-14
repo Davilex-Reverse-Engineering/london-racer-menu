@@ -1,13 +1,13 @@
-#include "SceneManager.hpp"
+#include "MenuManager.hpp"
 
-#include "scene/MainScene.hpp"
+#include "menu/RaceMenu.hpp"
 
-SceneManager::SceneManager()
+MenuManager::MenuManager()
 {
-  this->scene = new MainScene();
+  this->scene = new RaceMenu();
 }
 
-SceneManager::~SceneManager()
+MenuManager::~MenuManager()
 {
   if (this->background) {
     SDL_DestroyTexture(this->background);
@@ -17,7 +17,7 @@ SceneManager::~SceneManager()
   }
 }
 
-Action SceneManager::update(std::vector<Input> inputs)
+Action MenuManager::update(std::vector<Input> inputs)
 {
   Action action = scene->update(inputs);
   if (action == Action::QUIT) {
@@ -26,7 +26,7 @@ Action SceneManager::update(std::vector<Input> inputs)
   return Action::NONE;
 }
 
-void SceneManager::draw(SDL_Renderer *renderer)
+void MenuManager::draw(SDL_Renderer *renderer)
 {
   if (!this->background && !background_loaded) {
     SDL_Surface * background_surface = SDL_LoadBMP("BKGR.bmp");

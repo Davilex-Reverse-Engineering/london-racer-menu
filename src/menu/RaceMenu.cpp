@@ -1,9 +1,10 @@
-#include "MainScene.hpp"
+#include "RaceMenu.hpp"
 
 #include "../ui/UiButton.hpp"
 
-MainScene::MainScene()
+RaceMenu::RaceMenu()
 {
+  this->title = "Race Menu";
   // Items are added from bottom left to top right
   this->ui_elements.push_back(new UiButton(10.0f, 415.0f, 100.0f, 50.0f, "Quit", Action::QUIT));
   this->ui_elements.push_back(new UiButton(10.0f, 360.0f, 100.0f, 50.0f, "Options"));
@@ -13,12 +14,12 @@ MainScene::MainScene()
   this->selected = 4;
 }
 
-MainScene::~MainScene()
+RaceMenu::~RaceMenu()
 {
 
 }
 
-Action MainScene::update(std::vector<Input> inputs)
+Action RaceMenu::update(std::vector<Input> inputs)
 {
   return this->processInputs(inputs);
 }
