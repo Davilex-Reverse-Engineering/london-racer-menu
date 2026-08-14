@@ -43,6 +43,8 @@ public:
     };
 
     virtual void draw(SDL_Renderer *renderer) {
+      SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+      SDL_RenderDebugText(renderer, 216.0f, 35.0f, title.c_str());
       for (size_t i = 0; i < ui_elements.size(); i++) {
         ui_elements[i]->draw(renderer, i == selected);
       }
