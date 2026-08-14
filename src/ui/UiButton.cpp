@@ -18,7 +18,7 @@ UiButton::~UiButton()
 void UiButton::draw(SDL_Renderer *renderer, bool selected)
 {
   if (selected) {
-    SDL_SetRenderDrawColor(renderer, 50, 100, 50, 255);
+    SDL_SetRenderDrawColor(renderer, 71, 110, 23, 255);
   } else {
     SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
   }

@@ -22,6 +22,7 @@ int main(int argc, char** argv) {
     SDL_Quit();
     return 2;
   }
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
   InputManager input_manager = InputManager();
   MenuManager menu_manager = MenuManager();

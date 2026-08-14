@@ -2,6 +2,7 @@
 
 #include "menu/RaceMenu.hpp"
 #include "menu/TournamentMenu.hpp"
+#include "menu/SundayCup.hpp"
 
 MenuManager::MenuManager()
 {
@@ -29,6 +30,10 @@ Action MenuManager::update(std::vector<Input> inputs)
     case Action::OPEN_TOURNAMENT_MENU:
       delete this->menu;
       this->menu = new TournamentMenu();
+      break;
+    case Action::OPEN_SUNDAY_CUP:
+      delete this->menu;
+      this->menu = new SundayCup();
       break;
     case Action::QUIT:
       return action;

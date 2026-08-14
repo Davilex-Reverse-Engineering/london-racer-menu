@@ -19,8 +19,10 @@ add_executable(${PROJECT_NAME} WIN32
   src/InputManager.cpp
   src/MenuManager.cpp
   src/ui/UiButton.cpp
+  src/ui/UiRectangle.cpp
   src/menu/RaceMenu.cpp
   src/menu/TournamentMenu.cpp
+  src/menu/SundayCup.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static)
