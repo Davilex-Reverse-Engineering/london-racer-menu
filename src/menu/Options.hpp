@@ -7,10 +7,13 @@
 
 class Options : public BaseMenu {
 public:
-    Options();
+    Options(Menu last_menu);
     ~Options();
 
     Action update(std::vector<Input> inputs);
+
+private:
+    Action get_exit_action(Menu last_menu);
 };
 
 #endif // OPTIONS_HPP

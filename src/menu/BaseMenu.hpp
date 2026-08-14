@@ -10,6 +10,24 @@
 #include "../Action.hpp"
 #include "../Input.hpp"
 
+enum class Menu {
+  RACE_MENU,
+  TOURNAMENT_MENU,
+  SUNDAY_CUP,
+  TIME_TRIAL_MENU,
+  SHOWROOM,
+  GARAGE,
+  HALL_OF_FAME,
+  PLAYER_MENU,
+  OPTIONS,
+  SETTINGS,
+  CONTROLS,
+  TRACK_INFO,
+  LEAGUE_ONE,
+  LEAGUE_TWO,
+  LEAGUE_THREE
+};
+
 class BaseMenu {
 public:
     virtual ~BaseMenu() {

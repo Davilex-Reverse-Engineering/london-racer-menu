@@ -22,6 +22,8 @@ private:
   BaseMenu * menu = NULL;
   SDL_Texture * background = NULL;
   bool background_loaded = false;
+
+  Menu current_menu = Menu::RACE_MENU;
 };
 
 #endif // MENU_MANAGER_HPP
