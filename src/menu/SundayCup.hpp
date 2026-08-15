@@ -1,5 +1,5 @@
-#ifndef SUNDAY_CUP_HPP
-#define SUNDAY_CUP_HPP
+#ifndef MENU_SUNDAY_CUP_HPP
+#define MENU_SUNDAY_CUP_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -18,4 +18,4 @@ private:
     UiText * text_laps = NULL;
 };
 
-#endif // SUNDAY_CUP_HPP
+#endif // MENU_SUNDAY_CUP_HPP

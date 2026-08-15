@@ -1,5 +1,5 @@
-#ifndef OPTIONS_HPP
-#define OPTIONS_HPP
+#ifndef MENU_OPTIONS_HPP
+#define MENU_OPTIONS_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -16,4 +16,4 @@ private:
     Action get_exit_action(Menu last_menu);
 };
 
-#endif // OPTIONS_HPP
+#endif // MENU_OPTIONS_HPP

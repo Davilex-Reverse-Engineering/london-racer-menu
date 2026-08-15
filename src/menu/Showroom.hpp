@@ -1,5 +1,5 @@
-#ifndef SHOWROOM_HPP
-#define SHOWROOM_HPP
+#ifndef MENU_SHOWROOM_HPP
+#define MENU_SHOWROOM_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -11,4 +11,4 @@ public:
     ~Showroom();
 };
 
-#endif // SHOWROOM_HPP
+#endif // MENU_SHOWROOM_HPP

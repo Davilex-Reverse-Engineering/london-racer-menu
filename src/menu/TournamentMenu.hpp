@@ -1,5 +1,5 @@
-#ifndef TOURNAMENT_MENU_HPP
-#define TOURNAMENT_MENU_HPP
+#ifndef MENU_TOURNAMENT_MENU_HPP
+#define MENU_TOURNAMENT_MENU_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -11,4 +11,4 @@ public:
     ~TournamentMenu();
 };
 
-#endif // TOURNAMENT_MENU_HPP
+#endif // MENU_TOURNAMENT_MENU_HPP

@@ -1,5 +1,5 @@
-#ifndef CONTROLS_HPP
-#define CONTROLS_HPP
+#ifndef MENU_CONTROLS_HPP
+#define MENU_CONTROLS_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -11,4 +11,4 @@ public:
     ~Controls();
 };
 
-#endif // CONTROLS_HPP
+#endif // MENU_CONTROLS_HPP

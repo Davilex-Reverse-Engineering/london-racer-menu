@@ -1,5 +1,5 @@
-#ifndef PLAYER_MENU_HPP
-#define PLAYER_MENU_HPP
+#ifndef MENU_PLAYER_MENU_HPP
+#define MENU_PLAYER_MENU_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -11,4 +11,4 @@ public:
     ~PlayerMenu();
 };
 
-#endif // PLAYER_MENU_HPP
+#endif // MENU_PLAYER_MENU_HPP

@@ -1,5 +1,5 @@
-#ifndef RACE_MENU_HPP
-#define RACE_MENU_HPP
+#ifndef MENU_RACE_MENU_HPP
+#define MENU_RACE_MENU_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -13,4 +13,4 @@ public:
     Action update(std::vector<Input> inputs);
 };
 
-#endif // RACE_MENU_HPP
+#endif // MENU_RACE_MENU_HPP

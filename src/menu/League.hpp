@@ -1,5 +1,5 @@
-#ifndef LEAGUE_HPP
-#define LEAGUE_HPP
+#ifndef MENU_LEAGUE_HPP
+#define MENU_LEAGUE_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -16,4 +16,4 @@ private:
     int number = 1;
 };
 
-#endif // LEAGUE_HPP
+#endif // MENU_LEAGUE_HPP

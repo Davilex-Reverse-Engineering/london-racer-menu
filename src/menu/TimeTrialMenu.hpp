@@ -1,5 +1,5 @@
-#ifndef TIME_TRIAL_MENU_HPP
-#define TIME_TRIAL_MENU_HPP
+#ifndef MENU_TIME_TRIAL_MENU_HPP
+#define MENU_TIME_TRIAL_MENU_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -13,4 +13,4 @@ public:
     Action update(std::vector<Input> inputs);
 };
 
-#endif // TIME_TRIAL_MENU_HPP
+#endif // MENU_TIME_TRIAL_MENU_HPP

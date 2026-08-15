@@ -1,5 +1,5 @@
-#ifndef GARAGE_HPP
-#define GARAGE_HPP
+#ifndef MENU_GARAGE_HPP
+#define MENU_GARAGE_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -11,4 +11,4 @@ public:
     ~Garage();
 };
 
-#endif // GARAGE_HPP
+#endif // MENU_GARAGE_HPP

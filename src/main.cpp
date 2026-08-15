@@ -5,6 +5,7 @@
 
 #include "InputManager.hpp"
 #include "MenuManager.hpp"
+#include "IniHandler.hpp"
 
 int main(int argc, char** argv) {
   (void) argc;
@@ -26,6 +27,42 @@ int main(int argc, char** argv) {
 
   InputManager input_manager = InputManager();
   MenuManager menu_manager = MenuManager();
+
+  IniHandler menu_ini_handler = IniHandler();
+  if (!menu_ini_handler.load("menu.ini")) {
+    SDL_Log("Could not load menu.ini");
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 3;
+  }
+
+  IniHandler static_ini_handler = IniHandler();
+  if (!static_ini_handler.load("static.ini")) {
+    SDL_Log("Could not load static.ini");
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 4;
+  }
+
+  IniHandler game_ini_handler = IniHandler();
+  if (!game_ini_handler.load("game.ini")) {
+    SDL_Log("Could not load game.ini");
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 5;
+  }
+
+  IniHandler raser_ini_handler = IniHandler();
+  if (!raser_ini_handler.load("raser.ini")) {
+    SDL_Log("Could not load raser.ini");
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 6;
+  }
 
   bool running = true;
   Action action;

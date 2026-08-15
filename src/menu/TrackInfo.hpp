@@ -1,5 +1,5 @@
-#ifndef TRACK_INFO_HPP
-#define TRACK_INFO_HPP
+#ifndef MENU_TRACK_INFO_HPP
+#define MENU_TRACK_INFO_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -14,4 +14,4 @@ private:
     Action get_exit_action(Menu last_menu);
 };
 
-#endif // TRACK_INFO_HPP
+#endif // MENU_TRACK_INFO_HPP

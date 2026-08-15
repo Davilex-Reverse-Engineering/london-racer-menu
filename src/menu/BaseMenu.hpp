@@ -1,5 +1,5 @@
-#ifndef BASE_MENU_HPP
-#define BASE_MENU_HPP
+#ifndef MENU_BASE_MENU_HPP
+#define MENU_BASE_MENU_HPP
 
 #include <string>
 #include <vector>
@@ -135,4 +135,4 @@ protected:
   };
 };
 
-#endif // BASE_MENU_HPP
+#endif // MENU_BASE_MENU_HPP

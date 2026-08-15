@@ -1,5 +1,5 @@
-#ifndef HALL_OF_FAME_HPP
-#define HALL_OF_FAME_HPP
+#ifndef MENU_HALL_OF_FAME_HPP
+#define MENU_HALL_OF_FAME_HPP
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -14,4 +14,4 @@ private:
     Action get_exit_action(Menu last_menu);
 };
 
-#endif // HALL_OF_FAME_HPP
+#endif // MENU_HALL_OF_FAME_HPP
