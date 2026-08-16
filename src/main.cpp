@@ -21,7 +21,6 @@ void update_menu_ini(IniHandler * menu_ini_handler, int exit_code) {
 
   menu_ini_handler->setValue("music", "last", last_music);
   menu_ini_handler->setValue("general", "exitcode", exit_code);
-  menu_ini_handler->write();
 }
 
 int main(int argc, char** argv) {
@@ -103,6 +102,12 @@ int main(int argc, char** argv) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderPresent(renderer);
   }
+
+  // Save the 2 ini files which the menu edits
+  menu_ini_handler.write();
+  game_ini_handler.write();
+
+  // Cleanup
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
