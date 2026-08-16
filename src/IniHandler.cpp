@@ -55,22 +55,38 @@ bool IniHandler::load(const std::string &file_name)
       continue;
     }
 
-    // Only read values if there is no section name
-    size_t equals_position = line.rfind("=");
-    if (current_section.empty() || equals_position == std::string::npos) {
+    // Only read values if there is a section name
+    if (current_section.empty()) {
       continue;
     }
 
-
-    // Only set the value if the = sign is not the last character
-    std::string value = "";
-    if (equals_position < line.length() - 1) {
-      value = line.substr(equals_position + 1);
+    // Only lines with a = should be read
+    size_t equals_position = line.rfind("=");
+    if(equals_position == std::string::npos) {
+      continue;
     }
-    std::string key = line.substr(0, equals_position);
-    std::transform(key.begin(), key.end(), key.begin(), ::tolower);  // Convert to lower case
 
-    this->content[current_section][key] = value;
+    std::string key = "";
+    std::string value = "";
+    for (size_t i = 0; i < line.length(); i++) {
+      if (i == equals_position) {
+        continue;
+      }
+      if (i < equals_position) {
+        if (line[i] != ' ' && line[i] != '\t') {
+          key += line[i];
+        }
+      } else {
+        if (line[i] != ' ' && line[i] != '\t') {
+          value = line.substr(i);
+          break;
+        }
+      }
+    }
+    if (!key.empty()) {
+      std::transform(key.begin(), key.end(), key.begin(), ::tolower);  // Convert to lower case
+      this->content[current_section][key] = value;
+    }
   }
 
   input.close(); 
