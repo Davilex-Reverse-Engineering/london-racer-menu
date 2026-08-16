@@ -7,6 +7,23 @@
 #include "MenuManager.hpp"
 #include "IniHandler.hpp"
 
+#define EXIT_CODE_QUIT 255
+#define EXIT_CODE_START 40
+
+void update_menu_ini(IniHandler * menu_ini_handler, int exit_code) {
+  int music_count = menu_ini_handler->getInt("music", "count");
+  int last_music =  menu_ini_handler->getInt("music", "last");
+
+  last_music++;
+  if (last_music >= music_count) {
+    last_music = 0;
+  }
+
+  menu_ini_handler->setValue("music", "last", last_music);
+  menu_ini_handler->setValue("general", "exitcode", exit_code);
+  menu_ini_handler->write();
+}
+
 int main(int argc, char** argv) {
   (void) argc;
   (void) argv;
@@ -70,12 +87,18 @@ int main(int argc, char** argv) {
     std::vector<Input> inputs = input_manager.getInputs();
     for(Input input : inputs) {
       if (input.event == InputEvent::QUIT) {
+        update_menu_ini(&menu_ini_handler, EXIT_CODE_QUIT);
         running = false;
         break;
       }
     }
     action = menu_manager.update(inputs);
     if (action == Action::QUIT) {
+      update_menu_ini(&menu_ini_handler, EXIT_CODE_QUIT);
+      running = false;
+      break;
+    } else if (action == Action::START) {
+      update_menu_ini(&menu_ini_handler, EXIT_CODE_START);
       running = false;
       break;
     }
