@@ -33,6 +33,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends git ca-certificates g++ make cmake zlib1g-dev libasound-dev libxkbcommon-dev libdrm-dev libgl1-mesa-dev libgbm-dev libwayland-dev libdecor-0-dev
       - name: Checkout
         uses: actions/checkout@v7
         with:
@@ -40,7 +44,7 @@ jobs:
       - name: Build
         run: |
           mkdir Release && cd Release
-          cmake -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DSDL_X11=OFF ..
           cmake --build .
           cp ../README.md ./
           cp ../LICENSE.txt ./
