@@ -5,6 +5,7 @@
 
 #include "BaseMenu.hpp"
 #include "../ui/UiText.hpp"
+#include "../ui/UiImage.hpp"
 #include "../IniHandler.hpp"
 
 class SundayCup : public BaseMenu {
@@ -19,8 +20,11 @@ private:
     IniHandler * static_ini_handler = NULL;
     int laps = 1;
     UiText * text_laps = NULL;
+    UiImage * track_image = NULL;
 
-    void update_laps(int change);
+    void changeCar(int change);
+    void changeTrack(int change);
+    void changeLaps(int change);
 };
 
 #endif // MENU_SUNDAY_CUP_HPP

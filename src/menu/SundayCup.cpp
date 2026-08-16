@@ -37,8 +37,14 @@ SundayCup::SundayCup(IniHandler * game_ini_handler, IniHandler * static_ini_hand
   this->ui_elements.push_back(new UiText(525.0f, 174.0f, "Money", {255, 255, 255, 255}));
   this->ui_elements.push_back(new UiText(524.0f, 198.0f, "0", {255, 255, 0, 255}));
 
-  text_laps = new UiText(464.0f, 394.0f, this->game_ini_handler->getValue("options", "nrlaps", "1"), {255, 255, 0, 255});
-  this->ui_elements.push_back(text_laps);
+  this->text_laps = new UiText(464.0f, 394.0f, this->game_ini_handler->getValue("options", "nrlaps", "1"), {255, 255, 0, 255});
+  this->ui_elements.push_back(this->text_laps);
+
+  // Image for track preview
+  std::string etappe = this->game_ini_handler->getValue("etappe", "etappe");
+  std::string track_image_file_name = this->static_ini_handler->getValues("tracks", etappe)[2] + ".bmp";
+  this->track_image = new UiImage(335.0f, 287.0f, 173.0f, 85.0f, track_image_file_name);
+  this->ui_elements.push_back(this->track_image);
 
   this->selected = 1;
 }
@@ -53,11 +59,11 @@ Action SundayCup::update(std::vector<Input> inputs)
   Action action = this->processInputs(inputs);
   switch (action) {
     case Action::INCREASE_LAPS:
-      this->update_laps(1);
+      this->changeLaps(1);
       return Action::NONE;
       break;
     case Action::DECREASE_LAPS:
-      this->update_laps(-1);
+      this->changeLaps(-1);
       return Action::NONE;
       break;
     default:
@@ -66,8 +72,27 @@ Action SundayCup::update(std::vector<Input> inputs)
   return action;
 }
 
-void SundayCup::update_laps(int change) {
+void SundayCup::changeCar(int change)
+{
+}
+
+void SundayCup::changeTrack(int change)
+{
+}
+
+void SundayCup::changeLaps(int change)
+{
   int laps = this->game_ini_handler->getInt("options", "nrlaps");
+  std::string etappe = this->game_ini_handler->getValue("etappe", "etappe");
+  bool has_laps = this->static_ini_handler->getValues("tracks", etappe)[4] == "0";
+  if (!has_laps) {
+    if (laps != 1) {
+      this->game_ini_handler->setValue("options", "nrlaps", 1);
+      text_laps->setText("1");
+    }
+    return;
+  }
+
   laps += change;
   if (laps < 1) {
     laps = 1;
