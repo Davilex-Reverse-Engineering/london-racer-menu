@@ -29,7 +29,7 @@ MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_ha
     switch (this->menu_ini_handler->getInt("general", "previous")) {
       case 0:
         this->current_menu = Menu::SUNDAY_CUP;
-        this->menu = new SundayCup();
+        this->menu = new SundayCup(game_ini_handler, static_ini_handler);
         break;
       case 1:
         this->current_menu = Menu::TIME_TRIAL_MENU;
@@ -73,7 +73,7 @@ Action MenuManager::update(std::vector<Input> inputs)
       break;
     case Action::OPEN_SUNDAY_CUP:
       delete this->menu;
-      this->menu = new SundayCup();
+      this->menu = new SundayCup(game_ini_handler, static_ini_handler);
       current_menu = Menu::SUNDAY_CUP;
       break;
     case Action::OPEN_TIME_TRIAL_MENU:

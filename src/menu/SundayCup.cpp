@@ -3,8 +3,10 @@
 #include "../ui/UiButton.hpp"
 #include "../ui/UiRectangle.hpp"
 
-SundayCup::SundayCup()
+SundayCup::SundayCup(IniHandler * game_ini_handler, IniHandler * static_ini_handler)
 {
+  this->game_ini_handler = game_ini_handler;
+  this->static_ini_handler = static_ini_handler;
   this->title = "Sunday Cup";
 
   // Items are added from bottom left to top right
@@ -35,9 +37,8 @@ SundayCup::SundayCup()
   this->ui_elements.push_back(new UiText(525.0f, 174.0f, "Money", {255, 255, 255, 255}));
   this->ui_elements.push_back(new UiText(524.0f, 198.0f, "0", {255, 255, 0, 255}));
 
-  text_laps = new UiText(464.0f, 394.0f, std::to_string(laps), {255, 255, 0, 255});
+  text_laps = new UiText(464.0f, 394.0f, this->game_ini_handler->getValue("options", "nrlaps", "1"), {255, 255, 0, 255});
   this->ui_elements.push_back(text_laps);
-
 
   this->selected = 1;
 }
@@ -50,20 +51,29 @@ SundayCup::~SundayCup()
 Action SundayCup::update(std::vector<Input> inputs)
 {
   Action action = this->processInputs(inputs);
-  if (action == Action::DECREASE_LAPS) {
-    laps--;
-    if (laps < 1) {
-      laps = 1;
-    }
-    text_laps->setText(std::to_string(laps));
-    action = Action::NONE;
-  } else if (action == Action::INCREASE_LAPS) {
-    laps++;
-    if (laps > 5) {
-      laps = 5;
-    }
-    text_laps->setText(std::to_string(laps));
-    action = Action::NONE;
+  switch (action) {
+    case Action::INCREASE_LAPS:
+      this->update_laps(1);
+      return Action::NONE;
+      break;
+    case Action::DECREASE_LAPS:
+      this->update_laps(-1);
+      return Action::NONE;
+      break;
+    default:
+      break;
   }
   return action;
+}
+
+void SundayCup::update_laps(int change) {
+  int laps = this->game_ini_handler->getInt("options", "nrlaps");
+  laps += change;
+  if (laps < 1) {
+    laps = 1;
+  } else if (laps > 5) {
+    laps = 5;
+  }
+  this->game_ini_handler->setValue("options", "nrlaps", laps);
+  text_laps->setText(std::to_string(laps));
 }
