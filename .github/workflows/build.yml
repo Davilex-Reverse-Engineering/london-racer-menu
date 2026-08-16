@@ -1,0 +1,52 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - v**
+  pull_request:
+
+jobs:
+  Windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Build
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -A x64 .
+          cmake --build . --config Release
+          cp README.md Release/
+          cp LICENSE.txt Release/
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: menu-windows
+          path: |
+            Release
+
+  Linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Build
+        run: |
+          mkdir Release && cd Release
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          cmake --build .
+          cp ../README.md ./
+          cp ../LICENSE.txt ./
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: menu-linux
+          path: |
+            Release
