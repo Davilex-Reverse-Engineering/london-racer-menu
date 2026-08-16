@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
     SDL_Quit();
     return 6;
   }
+  SDL_SetRenderVSync(renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
   InputManager input_manager = InputManager();
