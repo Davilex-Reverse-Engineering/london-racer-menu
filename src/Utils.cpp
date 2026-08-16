@@ -1,4 +1,4 @@
-#include "Utils.hpp"
+﻿#include "Utils.hpp"
 
 #include "../vendor/SDL/include/SDL3/SDL.h"
 
@@ -27,9 +27,9 @@ std::string Utils::getFullPath(const std::string &file_name) {
         files_match = false;
         break;
       }
-      if (files_match) {
+    }
+    if (files_match) {
         return (working_directory / current_file_name).generic_string();
-      }
     }
   }
 
