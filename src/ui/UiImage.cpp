@@ -29,3 +29,11 @@ void UiImage::draw(SDL_Renderer *renderer, bool selected)
     SDL_RenderTexture(renderer, this->image, NULL, &this->rect);
   }
 }
+
+void UiImage::setImage(const std::string &file_name)
+{
+  this->file_name = file_name;
+  SDL_DestroyTexture(this->image);
+  this->image = NULL;
+  this->image_loaded = false;
+}

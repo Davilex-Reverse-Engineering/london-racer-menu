@@ -66,6 +66,14 @@ Action SundayCup::update(std::vector<Input> inputs)
       this->changeLaps(-1);
       return Action::NONE;
       break;
+    case Action::CHANGE_TRACK_LEFT:
+      this->changeTrack(-1);
+      return Action::NONE;
+      break;
+    case Action::CHANGE_TRACK_RIGHT:
+      this->changeTrack(1);
+      return Action::NONE;
+      break;
     default:
       break;
   }
@@ -78,6 +86,19 @@ void SundayCup::changeCar(int change)
 
 void SundayCup::changeTrack(int change)
 {
+  int track = this->game_ini_handler->getInt("etappe", "etappe");
+  int track_count = this->static_ini_handler->getInt("tracks", "count");
+
+  track += change;
+  if (track < 0) {
+    track = track_count - 1;
+  } else if (track >= track_count - 1) {
+    track = 0;
+  }
+
+  std::string file_name = this->static_ini_handler->getValues("tracks", std::to_string(track))[2] + ".bmp";
+  this->track_image->setImage(file_name);
+  this->game_ini_handler->setValue("etappe", "etappe", track);
 }
 
 void SundayCup::changeLaps(int change)

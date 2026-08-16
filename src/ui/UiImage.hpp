@@ -14,6 +14,8 @@ public:
 
   void draw(SDL_Renderer * renderer, bool selected = false);
 
+  void setImage(const std::string &file_name);
+
 private:
   std::string file_name = "";
   SDL_Texture * image = NULL;

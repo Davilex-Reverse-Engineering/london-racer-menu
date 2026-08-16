@@ -4,10 +4,11 @@
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
 #include "BaseMenu.hpp"
+#include "../IniHandler.hpp"
 
 class TrackInfo : public BaseMenu {
 public:
-    TrackInfo(Menu last_menu);
+    TrackInfo(Menu last_menu, IniHandler * game_ini_handler, IniHandler * static_ini_handler);
     ~TrackInfo();
 
 private:

@@ -118,7 +118,7 @@ Action MenuManager::update(std::vector<Input> inputs)
       break;
     case Action::OPEN_TRACK_INFO:
       delete this->menu;
-      this->menu = new TrackInfo(current_menu);
+      this->menu = new TrackInfo(current_menu, this->game_ini_handler, this->static_ini_handler);
       current_menu = Menu::TRACK_INFO;
       break;
     case Action::OPEN_LEAGUE:
