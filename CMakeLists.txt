@@ -38,3 +38,7 @@ add_executable(${PROJECT_NAME} WIN32
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+  SUFFIX ".exe"
+)
