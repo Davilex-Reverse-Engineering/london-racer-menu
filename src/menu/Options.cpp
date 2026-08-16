@@ -40,14 +40,8 @@ Action Options::get_exit_action(Menu last_menu)
     case Menu::TIME_TRIAL_MENU:
       return Action::OPEN_TIME_TRIAL_MENU;
       break;
-    case Menu::LEAGUE_ONE:
-      return Action::OPEN_LEAGUE_ONE;
-      break;
-    case Menu::LEAGUE_TWO:
-      return Action::OPEN_LEAGUE_TWO;
-      break;
-    case Menu::LEAGUE_THREE:
-      return Action::OPEN_LEAGUE_THREE;
+    case Menu::LEAGUE:
+      return Action::OPEN_LEAGUE;
       break;
     case Menu::OPTIONS:
       return Action::OPEN_OPTIONS;

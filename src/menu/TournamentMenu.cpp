@@ -2,8 +2,10 @@
 
 #include "../ui/UiButton.hpp"
 
-TournamentMenu::TournamentMenu()
+TournamentMenu::TournamentMenu(IniHandler * game_ini_handler)
 {
+  this->game_ini_handler = game_ini_handler;
+
   this->title = "Tournament Menu";
 
   // Items are added from bottom left to top right
@@ -17,4 +19,26 @@ TournamentMenu::TournamentMenu()
 
 TournamentMenu::~TournamentMenu()
 {
+}
+
+Action TournamentMenu::update(std::vector<Input> inputs)
+{
+  Action action = this->processInputs(inputs);
+  switch (action) {
+    case Action::OPEN_LEAGUE_ONE:
+      this->game_ini_handler->setValue("league", "league", 0);
+      return Action::OPEN_LEAGUE;
+      break;
+    case Action::OPEN_LEAGUE_TWO:
+      this->game_ini_handler->setValue("league", "league", 1);
+      return Action::OPEN_LEAGUE;
+      break;
+    case Action::OPEN_LEAGUE_THREE:
+      this->game_ini_handler->setValue("league", "league", 2);
+      return Action::OPEN_LEAGUE;
+      break;
+    default:
+      return action;
+      break;
+  }
 }

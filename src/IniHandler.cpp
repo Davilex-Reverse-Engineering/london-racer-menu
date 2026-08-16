@@ -220,6 +220,10 @@ std::vector<float> IniHandler::getFloats(std::string section, std::string key)
   return list;
 }
 
+bool IniHandler::getBool(const std::string &section, const std::string &key) {
+  return this->getInt(section, key) > 0;
+}
+
 void IniHandler::setValue(std::string section, std::string key, const std::string &value)
 {
   if (this->content.count(section) == 0) {

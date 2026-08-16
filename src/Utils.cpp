@@ -36,3 +36,14 @@ std::string Utils::getFullPath(const std::string &file_name) {
   SDL_Log("Could not find file %s", file_name.c_str());
   return file_name;
 }
+
+SDL_Texture * Utils::createTexture(SDL_Renderer *renderer, const std::string &file_name) {
+  std::string full_path = Utils::getFullPath(file_name);
+  SDL_Surface * surface = SDL_LoadBMP(full_path.c_str());
+  if (surface) {
+    SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_DestroySurface(surface);
+    return texture;
+  }
+  return NULL;
+}

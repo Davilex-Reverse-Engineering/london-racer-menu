@@ -9,10 +9,11 @@
 #include "ui/UiElement.hpp"
 #include "Action.hpp"
 #include "Input.hpp"
+#include "IniHandler.hpp"
 
 class MenuManager {
 public:
-  MenuManager();
+  MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_handler,  IniHandler * static_ini_handler);
   ~MenuManager();
 
   Action update(std::vector<Input> inputs);
@@ -22,6 +23,10 @@ private:
   BaseMenu * menu = NULL;
   SDL_Texture * background = NULL;
   bool background_loaded = false;
+
+  IniHandler * menu_ini_handler = NULL;
+  IniHandler * game_ini_handler = NULL;
+  IniHandler * static_ini_handler = NULL;
 
   Menu current_menu = Menu::RACE_MENU;
 };

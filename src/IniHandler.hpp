@@ -26,6 +26,8 @@ public:
   float getFloat(std::string section, std::string key);
   std::vector<float> getFloats(std::string section, std::string key);
 
+  bool getBool(const std::string &section, const std::string &key);
+
   void setValue(std::string section, std::string key, const std::string &value);
   void setValue(std::string section, std::string key, int value);
   void setValue(std::string section, std::string key, float value);

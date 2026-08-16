@@ -23,9 +23,7 @@ enum class Menu {
   SETTINGS,
   CONTROLS,
   TRACK_INFO,
-  LEAGUE_ONE,
-  LEAGUE_TWO,
-  LEAGUE_THREE
+  LEAGUE
 };
 
 class BaseMenu {

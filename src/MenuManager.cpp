@@ -2,6 +2,7 @@
 
 #include <typeinfo>
 
+#include "Utils.hpp"
 #include "menu/RaceMenu.hpp"
 #include "menu/TournamentMenu.hpp"
 #include "menu/SundayCup.hpp"
@@ -16,9 +17,34 @@
 #include "menu/TrackInfo.hpp"
 #include "menu/League.hpp"
 
-MenuManager::MenuManager()
+MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_handler, IniHandler * static_ini_handler)
 {
-  this->menu = new RaceMenu();
+  this->menu_ini_handler = menu_ini_handler;
+  this->game_ini_handler = game_ini_handler;
+  this->static_ini_handler = static_ini_handler;
+  if (this->menu_ini_handler->getBool("general", "firsttime")) {
+    this->current_menu = Menu::RACE_MENU;
+    this->menu = new RaceMenu();
+  } else {
+    switch (this->menu_ini_handler->getInt("general", "previous")) {
+      case 0:
+        this->current_menu = Menu::SUNDAY_CUP;
+        this->menu = new SundayCup();
+        break;
+      case 1:
+        this->current_menu = Menu::TIME_TRIAL_MENU;
+        this->menu = new TimeTrialMenu();
+        break;
+      case 2:
+        this->current_menu = Menu::LEAGUE;
+        this->menu = new League(this->game_ini_handler->getInt("league", "league"));
+        break;
+    default:
+      this->current_menu = Menu::RACE_MENU;
+      this->menu = new RaceMenu();
+      break;
+    }
+  }
 }
 
 MenuManager::~MenuManager()
@@ -42,7 +68,7 @@ Action MenuManager::update(std::vector<Input> inputs)
       break;
     case Action::OPEN_TOURNAMENT_MENU:
       delete this->menu;
-      this->menu = new TournamentMenu();
+      this->menu = new TournamentMenu(game_ini_handler);
       current_menu = Menu::TOURNAMENT_MENU;
       break;
     case Action::OPEN_SUNDAY_CUP:
@@ -95,20 +121,10 @@ Action MenuManager::update(std::vector<Input> inputs)
       this->menu = new TrackInfo(current_menu);
       current_menu = Menu::TRACK_INFO;
       break;
-    case Action::OPEN_LEAGUE_ONE:
+    case Action::OPEN_LEAGUE:
       delete this->menu;
-      this->menu = new League(1);
-      current_menu = Menu::LEAGUE_ONE;
-      break;
-    case Action::OPEN_LEAGUE_TWO:
-      delete this->menu;
-      this->menu = new League(2);
-      current_menu = Menu::LEAGUE_TWO;
-      break;
-    case Action::OPEN_LEAGUE_THREE:
-      delete this->menu;
-      this->menu = new League(3);
-      current_menu = Menu::LEAGUE_THREE;
+      this->menu = new League(this->game_ini_handler->getInt("league", "league"));
+      current_menu = Menu::LEAGUE;
       break;
     case Action::START:
     case Action::QUIT:
@@ -120,19 +136,10 @@ Action MenuManager::update(std::vector<Input> inputs)
   return Action::NONE;
 }
 
-void MenuManager::draw(SDL_Renderer *renderer)
-{
+void MenuManager::draw(SDL_Renderer * renderer) {
   if (!this->background && !background_loaded) {
-    SDL_Surface * background_surface = SDL_LoadBMP("BKGR.bmp");
-    if (background_surface) {
-      this->background = SDL_CreateTextureFromSurface(renderer, background_surface);
-      SDL_DestroySurface(background_surface);
-      if (!this->background) {
-        SDL_Log("Could not load image BKGR.bmp as texture");
-      }
-    } else {
-      SDL_Log("Could not load image BKGR.bmp");
-    }
+    std::string file_name = this->static_ini_handler->getValue("bitmaps", "0") + ".bmp";
+    this->background = Utils::createTexture(renderer, file_name);
     background_loaded = true;
   }
   if (this->background) {
