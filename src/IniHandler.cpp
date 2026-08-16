@@ -7,6 +7,8 @@
 
 #include "../vendor/SDL/include/SDL3/SDL.h"
 
+#include "Utils.hpp"
+
 IniHandler::IniHandler()
 {
 }
@@ -20,7 +22,7 @@ bool IniHandler::load(const std::string &file_name)
   if (file_name.empty()) {
     return false;
   }
-  this->file_name = file_name;
+  this->file_name = Utils::getFullPath(file_name);
   
   std::ifstream input(this->file_name);
   if (!input) {
