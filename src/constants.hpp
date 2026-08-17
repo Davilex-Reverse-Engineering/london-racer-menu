@@ -1,0 +1,6 @@
+#ifndef CONSTANTS_HPP
+#define CONSTANTS_HPP
+
+#define CAR_COUNT 10
+
+#endif // CONSTANTS_HPP

@@ -19,6 +19,7 @@ private:
     IniHandler * game_ini_handler = NULL;
     IniHandler * static_ini_handler = NULL;
     int laps = 1;
+    UiText * text_car = NULL;
     UiText * text_laps = NULL;
     UiImage * track_image = NULL;
 

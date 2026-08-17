@@ -127,6 +127,8 @@ Action MenuManager::update(std::vector<Input> inputs)
       current_menu = Menu::LEAGUE;
       break;
     case Action::START:
+      this->setPreviousValue();
+      return action;
     case Action::QUIT:
       return action;
       break;
@@ -146,4 +148,21 @@ void MenuManager::draw(SDL_Renderer * renderer) {
     SDL_RenderTexture(renderer, this->background, NULL, NULL);
   }
   menu->draw(renderer);
+}
+
+void MenuManager::setPreviousValue()
+{
+  switch (current_menu) {
+    case Menu::SUNDAY_CUP:
+      this->menu_ini_handler->setValue("general", "previous", 0);
+      break;
+    case Menu::TIME_TRIAL_MENU:
+      this->menu_ini_handler->setValue("general", "previous", 1);
+      break;
+    case Menu::LEAGUE:
+      this->menu_ini_handler->setValue("general", "previous", 2);
+      break;
+    default:
+      break;
+  }
 }

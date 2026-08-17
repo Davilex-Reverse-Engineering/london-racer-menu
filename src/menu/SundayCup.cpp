@@ -1,5 +1,6 @@
 #include "SundayCup.hpp"
 
+#include "../constants.hpp"
 #include "../ui/UiButton.hpp"
 #include "../ui/UiRectangle.hpp"
 
@@ -40,6 +41,14 @@ SundayCup::SundayCup(IniHandler * game_ini_handler, IniHandler * static_ini_hand
   this->text_laps = new UiText(464.0f, 394.0f, this->game_ini_handler->getValue("options", "nrlaps", "1"), {255, 255, 0, 255});
   this->ui_elements.push_back(this->text_laps);
 
+  // Car selection
+  std::string car_nr = this->game_ini_handler->getValue("player", "car");
+  std::string leagu_nr = this->game_ini_handler->getValue("league", "league");
+  std::string car_name = this->static_ini_handler->getValues("league" + leagu_nr, "car" + car_nr)[2];
+  this->text_car = new UiText(330.0f, 150.0f, car_name, {255, 255, 255, 255});
+  this->ui_elements.push_back(this->text_car);
+
+
   // Image for track preview
   std::string etappe = this->game_ini_handler->getValue("etappe", "etappe");
   std::string track_image_file_name = this->static_ini_handler->getValues("tracks", etappe)[2] + ".bmp";
@@ -74,14 +83,34 @@ Action SundayCup::update(std::vector<Input> inputs)
       this->changeTrack(1);
       return Action::NONE;
       break;
+    case Action::CHANGE_CAR_LEFT:
+      this->changeCar(-1);
+      return Action::NONE;
+      break;
+    case Action::CHANGE_CAR_RIGHT:
+      this->changeCar(1);
+      return Action::NONE;
+      break;
     default:
       break;
   }
   return action;
 }
 
-void SundayCup::changeCar(int change)
-{
+void SundayCup::changeCar(int change) {
+  int car = this->game_ini_handler->getInt("player", "car");
+
+  car += change;
+  if (car < 0) {
+    car = CAR_COUNT - 1;
+  } else if (car >= CAR_COUNT - 1) {
+    car = 0;
+  }
+
+  std::string leagu_nr = this->game_ini_handler->getValue("league", "league");
+  std::string car_name = this->static_ini_handler->getValues("league" + leagu_nr, "car" + std::to_string(car))[2];
+  this->text_car->setText(car_name);
+  this->game_ini_handler->setValue("player", "car", car);
 }
 
 void SundayCup::changeTrack(int change)

@@ -29,6 +29,8 @@ private:
   IniHandler * static_ini_handler = NULL;
 
   Menu current_menu = Menu::RACE_MENU;
+
+  void setPreviousValue();
 };
 
 #endif // MENU_MANAGER_HPP
