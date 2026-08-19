@@ -3,8 +3,10 @@
 #include "../ui/UiButton.hpp"
 #include "../ui/UiRectangle.hpp"
 
-TimeTrialMenu::TimeTrialMenu()
+TimeTrialMenu::TimeTrialMenu(IniHandler * game_ini_handler, IniHandler * static_ini_handler)
 {
+  this->game_ini_handler = game_ini_handler;
+  this->static_ini_handler = static_ini_handler;
   this->title = "Time Trial Menu";
 
   // Items are added from bottom left to top right
@@ -34,5 +36,25 @@ TimeTrialMenu::~TimeTrialMenu()
 
 Action TimeTrialMenu::update(std::vector<Input> inputs)
 {
-  return this->processInputs(inputs);
+  Action action = this->processInputs(inputs);
+  switch (action) {
+    case Action::START:
+      this->game_ini_handler->setValue("options", "opponents", false);
+      this->game_ini_handler->setValue("options", "police", false);
+      this->game_ini_handler->setValue("options", "traffic", false);
+      this->game_ini_handler->setValue("options", "nrlaps", 999);
+      this->game_ini_handler->setValue("player", "finished", 0);
+      this->game_ini_handler->setValue("player", "damage", 0);
+      this->game_ini_handler->setValue("player", "position", 4);
+      this->game_ini_handler->setValue("player", "motor", true);
+      this->game_ini_handler->setValue("player", "banden", true);
+      this->game_ini_handler->setValue("player", "abs", true);
+      this->game_ini_handler->setValue("player", "turbo", true);
+      this->game_ini_handler->setValue("player", "versnellingsbak", true);
+      return Action::START;
+      break;
+    default:
+      break;
+  }
+  return action;
 }

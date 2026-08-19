@@ -33,7 +33,7 @@ MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_ha
         break;
       case 1:
         this->current_menu = Menu::TIME_TRIAL_MENU;
-        this->menu = new TimeTrialMenu();
+        this->menu = new TimeTrialMenu(game_ini_handler, static_ini_handler);
         break;
       case 2:
         this->current_menu = Menu::LEAGUE;
@@ -78,7 +78,7 @@ Action MenuManager::update(std::vector<Input> inputs)
       break;
     case Action::OPEN_TIME_TRIAL_MENU:
       delete this->menu;
-      this->menu = new TimeTrialMenu();
+      this->menu = new TimeTrialMenu(game_ini_handler, static_ini_handler);
       current_menu = Menu::TIME_TRIAL_MENU;
       break;
     case Action::OPEN_SHOWROOM:
