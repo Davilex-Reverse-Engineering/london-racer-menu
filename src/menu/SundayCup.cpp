@@ -91,6 +91,20 @@ Action SundayCup::update(std::vector<Input> inputs)
       this->changeCar(1);
       return Action::NONE;
       break;
+    case Action::START:
+      this->game_ini_handler->setValue("options", "opponents", true);
+      this->game_ini_handler->setValue("options", "police", true);
+      this->game_ini_handler->setValue("options", "traffic", true);
+      this->game_ini_handler->setValue("player", "finished", 0);
+      this->game_ini_handler->setValue("player", "damage", 0);
+      this->game_ini_handler->setValue("player", "position", 4);
+      this->game_ini_handler->setValue("player", "motor", true);
+      this->game_ini_handler->setValue("player", "banden", true);
+      this->game_ini_handler->setValue("player", "abs", true);
+      this->game_ini_handler->setValue("player", "turbo", true);
+      this->game_ini_handler->setValue("player", "versnellingsbak", true);
+      return Action::START;
+      break;
     default:
       break;
   }
@@ -127,7 +141,7 @@ void SundayCup::changeTrack(int change)
 
   std::string file_name = this->static_ini_handler->getValues("tracks", std::to_string(track))[2] + ".bmp";
   this->track_image->setImage(file_name);
-  this->game_ini_handler->setValue("etappe", "etappe", track);
+  this->game_ini_handler->setValue("etappe", "etappe", track + 1);
 }
 
 void SundayCup::changeLaps(int change)
