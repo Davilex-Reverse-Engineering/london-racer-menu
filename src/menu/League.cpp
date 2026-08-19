@@ -3,9 +3,11 @@
 #include "../ui/UiButton.hpp"
 #include "../ui/UiRectangle.hpp"
 
-League::League(int number)
+League::League(IniHandler * game_ini_handler, IniHandler * static_ini_handler)
 {
-  this->number = number;
+  this->game_ini_handler = game_ini_handler;
+  this->static_ini_handler = static_ini_handler;
+  this->number = this->game_ini_handler->getInt("league", "league");
   this->title = std::string("League ") + std::to_string(number);
 
   // Items are added from bottom left to top right
@@ -35,5 +37,24 @@ League::~League()
 
 Action League::update(std::vector<Input> inputs)
 {
-  return this->processInputs(inputs);
+  Action action = this->processInputs(inputs);
+  switch (action) {
+    case Action::START:
+      this->game_ini_handler->setValue("options", "opponents", true);
+      this->game_ini_handler->setValue("options", "police", true);
+      this->game_ini_handler->setValue("options", "traffic", true);
+      this->game_ini_handler->setValue("player", "finished", 0);
+      this->game_ini_handler->setValue("player", "damage", 11);
+      this->game_ini_handler->setValue("player", "position", 4);
+      this->game_ini_handler->setValue("player", "motor", false);
+      this->game_ini_handler->setValue("player", "banden", false);
+      this->game_ini_handler->setValue("player", "abs", false);
+      this->game_ini_handler->setValue("player", "turbo", false);
+      this->game_ini_handler->setValue("player", "versnellingsbak", false);
+      return Action::START;
+      break;
+    default:
+      break;
+  }
+  return action;
 }

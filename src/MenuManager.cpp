@@ -37,7 +37,7 @@ MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_ha
         break;
       case 2:
         this->current_menu = Menu::LEAGUE;
-        this->menu = new League(this->game_ini_handler->getInt("league", "league"));
+        this->menu = new League(game_ini_handler, static_ini_handler);
         break;
     default:
       this->current_menu = Menu::RACE_MENU;
@@ -123,7 +123,7 @@ Action MenuManager::update(std::vector<Input> inputs)
       break;
     case Action::OPEN_LEAGUE:
       delete this->menu;
-      this->menu = new League(this->game_ini_handler->getInt("league", "league"));
+      this->menu = new League(game_ini_handler, static_ini_handler);
       current_menu = Menu::LEAGUE;
       break;
     case Action::START:
