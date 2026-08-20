@@ -50,8 +50,8 @@ SundayCup::SundayCup(IniHandler * game_ini_handler, IniHandler * static_ini_hand
 
 
   // Image for track preview
-  std::string etappe = this->game_ini_handler->getValue("etappe", "etappe");
-  std::string track_image_file_name = this->static_ini_handler->getValues("tracks", etappe)[2] + ".bmp";
+  this->track = this->game_ini_handler->getInt("etappe", "etappe") - 1;
+  std::string track_image_file_name = this->static_ini_handler->getValues("tracks", std::to_string(this->track))[2] + ".bmp";
   this->track_image = new UiImage(335.0f, 287.0f, 173.0f, 85.0f, track_image_file_name);
   this->ui_elements.push_back(this->track_image);
 
@@ -129,19 +129,18 @@ void SundayCup::changeCar(int change) {
 
 void SundayCup::changeTrack(int change)
 {
-  int track = this->game_ini_handler->getInt("etappe", "etappe");
   int track_count = this->static_ini_handler->getInt("tracks", "count");
 
-  track += change;
-  if (track < 0) {
-    track = track_count - 1;
-  } else if (track >= track_count - 1) {
-    track = 0;
+  this->track += change;
+  if (this->track < 0) {
+    this->track = track_count - 1;
+  } else if (this->track >= track_count - 1) {
+    this->track = 0;
   }
 
-  std::string file_name = this->static_ini_handler->getValues("tracks", std::to_string(track))[2] + ".bmp";
+  std::string file_name = this->static_ini_handler->getValues("tracks", std::to_string(this->track))[2] + ".bmp";
   this->track_image->setImage(file_name);
-  this->game_ini_handler->setValue("etappe", "etappe", track + 1);
+  this->game_ini_handler->setValue("etappe", "etappe", this->track + 1);
 }
 
 void SundayCup::changeLaps(int change)

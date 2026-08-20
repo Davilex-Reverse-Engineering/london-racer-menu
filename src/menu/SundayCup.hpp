@@ -18,6 +18,7 @@ public:
 private:
     IniHandler * game_ini_handler = NULL;
     IniHandler * static_ini_handler = NULL;
+    int track = 0;
     int laps = 1;
     UiText * text_car = NULL;
     UiText * text_laps = NULL;
