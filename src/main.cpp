@@ -53,6 +53,8 @@ int main(int argc, char** argv) {
   }
   SDL_SetRenderVSync(renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+  SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+  SDL_SetWindowResizable(window, true);
 
   InputManager input_manager = InputManager();
   MenuManager menu_manager = MenuManager(&menu_ini_handler, &game_ini_handler, &static_ini_handler);
@@ -71,8 +73,8 @@ int main(int argc, char** argv) {
     SDL_RenderClear(renderer);
     menu_manager.draw(renderer);
 
-    // Draw everything on a white background
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    // Make the borders black when window is resized to a different aspect ratio
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderPresent(renderer);
   }
 
