@@ -68,7 +68,16 @@ Action MenuManager::update(std::vector<Input> inputs)
       SDL_PutAudioStreamData(this->music_stream, this->music_buffer, this->music_length);
     }
   }
-  Action action = menu->update(inputs);
+  Action action = Action::NONE;
+  for(Input input : inputs) {
+    if (input.event == InputEvent::QUIT) {
+      action = Action::QUIT;
+      break;
+    }
+  }
+  if (action != Action::QUIT) {
+    action = menu->update(inputs);
+  }
   switch (action) {
     case Action::OPEN_RACE_MENU:
       delete this->menu;
@@ -136,9 +145,11 @@ Action MenuManager::update(std::vector<Input> inputs)
       current_menu = Menu::LEAGUE;
       break;
     case Action::START:
+      this->menu_ini_handler->setValue("general", "exitcode", 40);
       this->setPreviousValue();
       return action;
     case Action::QUIT:
+      this->menu_ini_handler->setValue("general", "exitcode", 255);
       return action;
       break;
     default:
