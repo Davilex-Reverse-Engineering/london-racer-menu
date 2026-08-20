@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     return 4;
   }
 
-  if(!SDL_Init(SDL_INIT_VIDEO)) {
+  if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
     SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
     return 5;
   }

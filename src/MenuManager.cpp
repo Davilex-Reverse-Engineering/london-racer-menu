@@ -45,6 +45,7 @@ MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_ha
       break;
     }
   }
+  this->loadMusic();
 }
 
 MenuManager::~MenuManager()
@@ -55,10 +56,18 @@ MenuManager::~MenuManager()
   if (this->menu) {
     delete this->menu;
   }
+  if (this->music_buffer) {
+    SDL_free(this->music_buffer);
+  }
 }
 
 Action MenuManager::update(std::vector<Input> inputs)
 {
+  if (this->playing_music) {
+    if (SDL_GetAudioStreamQueued(this->music_stream) < (int)this->music_length) {
+      SDL_PutAudioStreamData(this->music_stream, this->music_buffer, this->music_length);
+    }
+  }
   Action action = menu->update(inputs);
   switch (action) {
     case Action::OPEN_RACE_MENU:
@@ -165,4 +174,29 @@ void MenuManager::setPreviousValue()
     default:
       break;
   }
+}
+
+void MenuManager::loadMusic()
+{
+  int last = this->menu_ini_handler->getInt("music", "last");
+  int count = this->menu_ini_handler->getInt("music", "count");
+  int music = last + 1;
+  if (music >= count) {
+    music = 0;
+  }
+  std::string music_file_name = this->menu_ini_handler->getValue("music", std::to_string(music)) + ".wav";
+  music_file_name = Utils::getFullPath(music_file_name);
+
+  SDL_AudioSpec spec;
+  SDL_LoadWAV(music_file_name.c_str(), &spec, &this->music_buffer, &this->music_length);
+
+  this->music_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NULL, NULL);
+  if (!this->music_stream) {
+      SDL_Log("Couldn't create audio stream: %s", SDL_GetError());
+      return;
+  }
+  SDL_ResumeAudioStreamDevice(this->music_stream);
+
+  this->menu_ini_handler->setValue("music", "last", music);
+  playing_music = true;
 }

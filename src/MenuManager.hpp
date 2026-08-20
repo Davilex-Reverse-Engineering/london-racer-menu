@@ -30,7 +30,14 @@ private:
 
   Menu current_menu = Menu::RACE_MENU;
 
+  uint8_t * music_buffer = NULL;
+  uint32_t music_length = 0;
+  SDL_AudioStream * music_stream = NULL;
+
+  bool playing_music = false;
+
   void setPreviousValue();
+  void loadMusic();
 };
 
 #endif // MENU_MANAGER_HPP
