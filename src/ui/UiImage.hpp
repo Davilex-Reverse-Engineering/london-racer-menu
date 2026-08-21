@@ -9,7 +9,7 @@
 
 class UiImage : public UiElement {
 public:
-  UiImage(float x, float y, float width, float height, const std::string &file_name);
+  UiImage(float x, float y, float width, float height, const std::string &file_name = "");
   ~UiImage();
 
   void draw(SDL_Renderer * renderer, bool selected = false);

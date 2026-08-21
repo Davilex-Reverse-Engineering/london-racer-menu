@@ -38,7 +38,8 @@ SundayCup::SundayCup(IniHandler * game_ini_handler, IniHandler * static_ini_hand
   this->ui_elements.push_back(new UiText(525.0f, 174.0f, "Money", {255, 255, 255, 255}));
   this->ui_elements.push_back(new UiText(524.0f, 198.0f, "0", {255, 255, 0, 255}));
 
-  this->text_laps = new UiText(464.0f, 394.0f, this->game_ini_handler->getValue("options", "nrlaps", "1"), {255, 255, 0, 255});
+  this->laps = 2;
+  this->text_laps = new UiText(464.0f, 394.0f, std::to_string(this->laps), {255, 255, 0, 255});
   this->ui_elements.push_back(this->text_laps);
 
   // Car selection
@@ -48,11 +49,10 @@ SundayCup::SundayCup(IniHandler * game_ini_handler, IniHandler * static_ini_hand
   this->text_car = new UiText(330.0f, 150.0f, car_name, {255, 255, 255, 255});
   this->ui_elements.push_back(this->text_car);
 
-
   // Image for track preview
-  this->track = this->game_ini_handler->getInt("etappe", "etappe") - 1;
-  std::string track_image_file_name = this->static_ini_handler->getValues("tracks", std::to_string(this->track))[2] + ".bmp";
-  this->track_image = new UiImage(335.0f, 287.0f, 173.0f, 85.0f, track_image_file_name);
+  int track = this->game_ini_handler->getInt("etappe", "etappe") - 1;
+  this->track_image = new UiImage(335.0f, 287.0f, 173.0f, 85.0f);
+  this->setTrack(track);
   this->ui_elements.push_back(this->track_image);
 
   this->selected = 1;
@@ -92,6 +92,11 @@ Action SundayCup::update(std::vector<Input> inputs)
       return Action::NONE;
       break;
     case Action::START:
+      if (this->has_laps) {
+        this->game_ini_handler->setValue("options", "laps", this->laps);
+      } else {
+        this->game_ini_handler->setValue("options", "laps", 1);
+      }
       this->game_ini_handler->setValue("options", "opponents", true);
       this->game_ini_handler->setValue("options", "police", true);
       this->game_ini_handler->setValue("options", "traffic", true);
@@ -127,41 +132,44 @@ void SundayCup::changeCar(int change) {
   this->game_ini_handler->setValue("player", "car", car);
 }
 
+void SundayCup::setTrack(int track)
+{
+  std::vector<std::string> track_values = this->static_ini_handler->getValues("tracks", std::to_string(track));
+  std::string file_name = track_values[2] + ".bmp";
+  this->track_image->setImage(file_name);
+
+  this->has_laps = track_values[4] == "0";
+  if (this->has_laps) {
+    text_laps->setText(std::to_string(this->laps));
+  } else {
+    text_laps->setText("1");
+  }
+  this->game_ini_handler->setValue("etappe", "etappe", track + 1);
+  this->track = track;
+}
+
 void SundayCup::changeTrack(int change)
 {
   int track_count = this->static_ini_handler->getInt("tracks", "count");
-
-  this->track += change;
-  if (this->track < 0) {
-    this->track = track_count - 1;
-  } else if (this->track >= track_count - 1) {
-    this->track = 0;
+  int track = this->track + change;
+  if (track < 0) {
+    track = track_count - 1;
+  } else if (track >= track_count - 1) {
+    track = 0;
   }
-
-  std::string file_name = this->static_ini_handler->getValues("tracks", std::to_string(this->track))[2] + ".bmp";
-  this->track_image->setImage(file_name);
-  this->game_ini_handler->setValue("etappe", "etappe", this->track + 1);
+  this->setTrack(track);
 }
 
 void SundayCup::changeLaps(int change)
 {
-  int laps = this->game_ini_handler->getInt("options", "nrlaps");
-  std::string etappe = this->game_ini_handler->getValue("etappe", "etappe");
-  bool has_laps = this->static_ini_handler->getValues("tracks", etappe)[4] == "0";
-  if (!has_laps) {
-    if (laps != 1) {
-      this->game_ini_handler->setValue("options", "nrlaps", 1);
-      text_laps->setText("1");
-    }
+  if (!this->has_laps) {
     return;
   }
-
-  laps += change;
-  if (laps < 1) {
-    laps = 1;
-  } else if (laps > 5) {
-    laps = 5;
+  this->laps += change;
+  if (this->laps < 1) {
+    this->laps = 1;
+  } else if (this->laps > 5) {
+    this->laps = 5;
   }
-  this->game_ini_handler->setValue("options", "nrlaps", laps);
-  text_laps->setText(std::to_string(laps));
+  text_laps->setText(std::to_string(this->laps));
 }

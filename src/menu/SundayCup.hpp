@@ -19,12 +19,14 @@ private:
     IniHandler * game_ini_handler = NULL;
     IniHandler * static_ini_handler = NULL;
     int track = 0;
-    int laps = 1;
+    bool has_laps = false;
+    int laps = 2;
     UiText * text_car = NULL;
     UiText * text_laps = NULL;
     UiImage * track_image = NULL;
 
     void changeCar(int change);
+    void setTrack(int track);
     void changeTrack(int change);
     void changeLaps(int change);
 };
