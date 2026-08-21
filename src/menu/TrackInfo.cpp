@@ -10,8 +10,8 @@ TrackInfo::TrackInfo(Menu last_menu, IniHandler * game_ini_handler, IniHandler *
   std::string background_image_file_name = static_ini_handler->getValue("bitmaps", "6") + ".bmp";
   this->ui_elements.push_back(new UiImage(0.0f, 0.0f, 640.0f, 480.0f, background_image_file_name));
 
-  std::string etappe = game_ini_handler->getValue("etappe", "etappe");
-  std::string track_image_file_name = static_ini_handler->getValues("tracks", etappe)[3] + ".bmp";
+  int etappe = game_ini_handler->getInt("etappe", "etappe") - 1;
+  std::string track_image_file_name = static_ini_handler->getValues("tracks", std::to_string(etappe))[3] + ".bmp";
   this->ui_elements.push_back(new UiImage(100.0f, 140.0f, 474.0f, 220.0f, track_image_file_name));
 
   this->ui_elements.push_back(new UiButton(10.0f, 415.0f, 100.0f, 50.0f, "Exit", get_exit_action(last_menu)));
