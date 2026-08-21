@@ -16,6 +16,7 @@ private:
     IniHandler * game_ini_handler = NULL;
     IniHandler * static_ini_handler = NULL;
 
+    int getNrLaps();
 };
 
 #endif // MENU_TIME_TRIAL_MENU_HPP

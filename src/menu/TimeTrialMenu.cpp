@@ -42,7 +42,7 @@ Action TimeTrialMenu::update(std::vector<Input> inputs)
       this->game_ini_handler->setValue("options", "opponents", false);
       this->game_ini_handler->setValue("options", "police", false);
       this->game_ini_handler->setValue("options", "traffic", false);
-      this->game_ini_handler->setValue("options", "nrlaps", 999);
+      this->game_ini_handler->setValue("options", "nrlaps", this->getNrLaps());
       this->game_ini_handler->setValue("player", "finished", 0);
       this->game_ini_handler->setValue("player", "damage", 0);
       this->game_ini_handler->setValue("player", "position", 4);
@@ -57,4 +57,16 @@ Action TimeTrialMenu::update(std::vector<Input> inputs)
       break;
   }
   return action;
+}
+
+int TimeTrialMenu::getNrLaps()
+{
+  int track = this->game_ini_handler->getInt("etappe", "etappe") - 1;
+  std::vector<std::string> track_values = this->static_ini_handler->getValues("tracks", std::to_string(track));
+
+  int has_laps = track_values[4] == "0";
+  if (has_laps) {
+    return 999;
+  }
+  return 1;
 }
