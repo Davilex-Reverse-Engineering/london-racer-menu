@@ -121,14 +121,14 @@ Action SundayCup::update(std::vector<Input> inputs)
       break;
     case Action::START:
       if (this->has_laps) {
-        this->game_ini_handler->setValue("options", "laps", this->laps);
+        this->game_ini_handler->setValue("options", "nrlaps", this->laps);
       } else {
-        this->game_ini_handler->setValue("options", "laps", 1);
+        this->game_ini_handler->setValue("options", "nrlaps", 1);
       }
       this->game_ini_handler->setValue("options", "opponents", true);
       this->game_ini_handler->setValue("options", "police", this->checkbox_police->getEnabled());
       this->game_ini_handler->setValue("options", "traffic", this->checkbox_traffic->getEnabled());
-      this->game_ini_handler->setValue("options", "invulnerable", !this->checkbox_damage->getEnabled());
+      this->game_ini_handler->setValue("options", "invulnerable", this->checkbox_damage->getEnabled());
       this->game_ini_handler->setValue("player", "finished", 0);
       this->game_ini_handler->setValue("player", "damage", 0);
       this->game_ini_handler->setValue("player", "position", 4);
