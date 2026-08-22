@@ -55,6 +55,22 @@ SundayCup::SundayCup(IniHandler * game_ini_handler, IniHandler * static_ini_hand
   this->setTrack(track);
   this->ui_elements.push_back(this->track_image);
 
+  // Checkboxes
+  bool damage_enabled = true;
+  this->game_ini_handler->setValue("options", "damage", damage_enabled);
+  checkbox_damage = new UiCheckbox(593.0f, 283.0f, damage_enabled, Action::SET_DAMAGE);
+  this->ui_elements.push_back(checkbox_damage);
+
+  bool police_enabled = true;
+  this->game_ini_handler->setValue("options", "police", police_enabled);
+  checkbox_police = new UiCheckbox(593.0f, 323.0f, police_enabled, Action::SET_POLICE);
+  this->ui_elements.push_back(checkbox_police);
+
+  bool traffic_enabled = true;
+  this->game_ini_handler->setValue("options", "traffic", traffic_enabled);
+  checkbox_traffic = new UiCheckbox(593.0f, 363.0f, traffic_enabled, Action::SET_TRAFFIC);
+  this->ui_elements.push_back(checkbox_traffic);
+
   this->selected = 1;
 }
 
@@ -91,6 +107,18 @@ Action SundayCup::update(std::vector<Input> inputs)
       this->changeCar(1);
       return Action::NONE;
       break;
+    case Action::SET_DAMAGE:
+      this->checkbox_damage->setEnabled(!this->checkbox_damage->getEnabled());
+      return Action::NONE;
+      break;
+    case Action::SET_POLICE:
+      this->checkbox_police->setEnabled(!this->checkbox_police->getEnabled());
+      return Action::NONE;
+      break;
+    case Action::SET_TRAFFIC:
+      this->checkbox_traffic->setEnabled(!this->checkbox_traffic->getEnabled());
+      return Action::NONE;
+      break;
     case Action::START:
       if (this->has_laps) {
         this->game_ini_handler->setValue("options", "laps", this->laps);
@@ -98,8 +126,8 @@ Action SundayCup::update(std::vector<Input> inputs)
         this->game_ini_handler->setValue("options", "laps", 1);
       }
       this->game_ini_handler->setValue("options", "opponents", true);
-      this->game_ini_handler->setValue("options", "police", true);
-      this->game_ini_handler->setValue("options", "traffic", true);
+      this->game_ini_handler->setValue("options", "police", this->checkbox_police->getEnabled());
+      this->game_ini_handler->setValue("options", "traffic", this->checkbox_traffic->getEnabled());
       this->game_ini_handler->setValue("player", "finished", 0);
       this->game_ini_handler->setValue("player", "damage", 0);
       this->game_ini_handler->setValue("player", "position", 4);

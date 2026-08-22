@@ -21,6 +21,7 @@ add_executable(${PROJECT_NAME} WIN32
   src/IniHandler.cpp
   src/Utils.cpp
   src/ui/UiButton.cpp
+  src/ui/UiCheckbox.cpp
   src/ui/UiRectangle.cpp
   src/ui/UiText.cpp
   src/ui/UiImage.cpp

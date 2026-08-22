@@ -6,6 +6,7 @@
 #include "BaseMenu.hpp"
 #include "../ui/UiText.hpp"
 #include "../ui/UiImage.hpp"
+#include "../ui/UiCheckbox.hpp"
 #include "../IniHandler.hpp"
 
 class SundayCup : public BaseMenu {
@@ -24,6 +25,9 @@ private:
     UiText * text_car = NULL;
     UiText * text_laps = NULL;
     UiImage * track_image = NULL;
+    UiCheckbox * checkbox_damage = NULL;
+    UiCheckbox * checkbox_police = NULL;
+    UiCheckbox * checkbox_traffic = NULL;
 
     void changeCar(int change);
     void setTrack(int track);
