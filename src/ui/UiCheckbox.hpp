@@ -7,8 +7,6 @@
 
 #include "UiElement.hpp"
 
-#define VERT_COUNT 24
-
 class UiCheckbox : public UiElement {
 public:
   UiCheckbox(float x, float y, bool enabled, Action action = Action::NONE);
@@ -20,8 +18,6 @@ public:
   void setEnabled(bool enabled) {this->enabled = enabled;};
 private:
   bool enabled = false;
-
-  SDL_Vertex verts[VERT_COUNT];
 };
 
 #endif // UI_CHECKBOX_HPP
