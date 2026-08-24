@@ -128,7 +128,7 @@ Action SundayCup::update(std::vector<Input> inputs)
       this->game_ini_handler->setValue("options", "opponents", true);
       this->game_ini_handler->setValue("options", "police", this->checkbox_police->getEnabled());
       this->game_ini_handler->setValue("options", "traffic", this->checkbox_traffic->getEnabled());
-      this->game_ini_handler->setValue("options", "invulnerable", this->checkbox_damage->getEnabled());
+      this->game_ini_handler->setValue("options", "invulnerable", !this->checkbox_damage->getEnabled());
       this->game_ini_handler->setValue("player", "finished", 0);
       this->game_ini_handler->setValue("player", "damage", 0);
       this->game_ini_handler->setValue("player", "position", 4);
