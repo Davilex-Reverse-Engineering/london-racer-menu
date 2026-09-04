@@ -16,6 +16,7 @@
 #include "menu/Settings.hpp"
 #include "menu/TrackInfo.hpp"
 #include "menu/League.hpp"
+#include "menu/Results.hpp"
 
 MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_handler, IniHandler * static_ini_handler)
 {
@@ -26,23 +27,34 @@ MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_ha
     this->current_menu = Menu::RACE_MENU;
     this->menu = new RaceMenu();
   } else {
-    switch (this->menu_ini_handler->getInt("general", "previous")) {
-      case 0:
-        this->current_menu = Menu::SUNDAY_CUP;
-        this->menu = new SundayCup(game_ini_handler, static_ini_handler);
+    int previous = this->menu_ini_handler->getInt("general", "previous");
+    if (this->game_ini_handler->getBool("player", "finished")) {
+      if (previous == 1) { // Time Trial brings you to hall of fame
+        this->current_menu = Menu::HALL_OF_FAME;
+        this->menu = new HallOfFame(Menu::TIME_TRIAL_MENU);
+      } else {
+        this->current_menu = Menu::RESULTS;
+        this->menu = new Results();
+      }
+    } else {
+      switch (previous) {
+        case 0:
+          this->current_menu = Menu::SUNDAY_CUP;
+          this->menu = new SundayCup(game_ini_handler, static_ini_handler);
+          break;
+        case 1:
+          this->current_menu = Menu::TIME_TRIAL_MENU;
+          this->menu = new TimeTrialMenu(game_ini_handler, static_ini_handler);
+          break;
+        case 2:
+          this->current_menu = Menu::LEAGUE;
+          this->menu = new League(game_ini_handler, static_ini_handler);
+          break;
+      default:
+        this->current_menu = Menu::RACE_MENU;
+        this->menu = new RaceMenu();
         break;
-      case 1:
-        this->current_menu = Menu::TIME_TRIAL_MENU;
-        this->menu = new TimeTrialMenu(game_ini_handler, static_ini_handler);
-        break;
-      case 2:
-        this->current_menu = Menu::LEAGUE;
-        this->menu = new League(game_ini_handler, static_ini_handler);
-        break;
-    default:
-      this->current_menu = Menu::RACE_MENU;
-      this->menu = new RaceMenu();
-      break;
+      }
     }
   }
   this->loadMusic();

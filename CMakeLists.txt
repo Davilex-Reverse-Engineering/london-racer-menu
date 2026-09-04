@@ -38,6 +38,7 @@ add_executable(${PROJECT_NAME} WIN32
   src/menu/Controls.cpp
   src/menu/TrackInfo.cpp
   src/menu/League.cpp
+  src/menu/Results.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static)

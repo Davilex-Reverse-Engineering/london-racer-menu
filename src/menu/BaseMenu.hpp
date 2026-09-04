@@ -19,6 +19,7 @@ enum class Menu {
   GARAGE,
   HALL_OF_FAME,
   PLAYER_MENU,
+  RESULTS,
   OPTIONS,
   SETTINGS,
   CONTROLS,
