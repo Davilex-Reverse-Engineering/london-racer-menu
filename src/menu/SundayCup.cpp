@@ -24,7 +24,7 @@ SundayCup::SundayCup(IniHandler * game_ini_handler, IniHandler * static_ini_hand
   this->ui_elements.push_back(new UiButton(425.0f, 72.0f, 105.0f, 24.0f, "League 3", Action::CHANGE_LEAGUE_THREE));
 
   this->ui_elements.push_back(new UiButton(263.0f, 227.0f, 64.0f, 24.0f, "<", Action::CHANGE_CAR_LEFT));
-  this->ui_elements.push_back(new UiButton(380.0f, 227.0f, 80.0f, 32.0f, "Colour", Action::CHANGE_COLOR));
+  // this->ui_elements.push_back(new UiButton(380.0f, 227.0f, 80.0f, 32.0f, "Colour", Action::CHANGE_COLOR));
   this->ui_elements.push_back(new UiButton(516.0f, 227.0f, 64.0f, 24.0f, ">", Action::CHANGE_CAR_RIGHT));
 
   this->ui_elements.push_back(new UiButton(432.0f, 391.0f, 21.0f, 14.0f, "<", Action::DECREASE_LAPS));
