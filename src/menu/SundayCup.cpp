@@ -180,7 +180,6 @@ void SundayCup::setCar(int car_id)
   std::string car_name = this->static_ini_handler->getValues("league" + league_nr, "car" + std::to_string(car_id))[2];
   this->text_car->setText(car_name);
   this->game_ini_handler->setValue("player", "car", car_id);
-
 }
 
 void SundayCup::setTrack(int track)
