@@ -30,6 +30,7 @@ private:
     UiCheckbox * checkbox_traffic = NULL;
 
     void changeCar(int change);
+    void setCar(int car_id);
     void setTrack(int track);
     void changeTrack(int change);
     void changeLaps(int change);

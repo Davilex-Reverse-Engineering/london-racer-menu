@@ -19,6 +19,10 @@ SundayCup::SundayCup(IniHandler * game_ini_handler, IniHandler * static_ini_hand
   this->ui_elements.push_back(new UiRectangle(215.0f, 96.0f, 414.0f, 131.0f, {71, 110, 23, 200}));
   this->ui_elements.push_back(new UiRectangle(215.0f, 264.0f, 414.0f, 159.0f, {71, 110, 23, 200}));
 
+  this->ui_elements.push_back(new UiButton(215.0f, 72.0f, 105.0f, 24.0f, "League 1", Action::CHANGE_LEAGUE_ONE));
+  this->ui_elements.push_back(new UiButton(320.0f, 72.0f, 105.0f, 24.0f, "League 2", Action::CHANGE_LEAGUE_TWO));
+  this->ui_elements.push_back(new UiButton(425.0f, 72.0f, 105.0f, 24.0f, "League 3", Action::CHANGE_LEAGUE_THREE));
+
   this->ui_elements.push_back(new UiButton(263.0f, 227.0f, 64.0f, 24.0f, "<", Action::CHANGE_CAR_LEFT));
   this->ui_elements.push_back(new UiButton(380.0f, 227.0f, 80.0f, 32.0f, "Colour", Action::CHANGE_COLOR));
   this->ui_elements.push_back(new UiButton(516.0f, 227.0f, 64.0f, 24.0f, ">", Action::CHANGE_CAR_RIGHT));
@@ -44,8 +48,8 @@ SundayCup::SundayCup(IniHandler * game_ini_handler, IniHandler * static_ini_hand
 
   // Car selection
   std::string car_nr = this->game_ini_handler->getValue("player", "car");
-  std::string leagu_nr = this->game_ini_handler->getValue("league", "league");
-  std::string car_name = this->static_ini_handler->getValues("league" + leagu_nr, "car" + car_nr)[2];
+  std::string league_nr = this->game_ini_handler->getValue("league", "league");
+  std::string car_name = this->static_ini_handler->getValues("league" + league_nr, "car" + car_nr)[2];
   this->text_car = new UiText(330.0f, 150.0f, car_name, {255, 255, 255, 255});
   this->ui_elements.push_back(this->text_car);
 
@@ -107,6 +111,18 @@ Action SundayCup::update(std::vector<Input> inputs)
       this->changeCar(1);
       return Action::NONE;
       break;
+    case Action::CHANGE_LEAGUE_ONE:
+      this->game_ini_handler->setValue("league", "league", 0);
+      this->setCar(0);
+      return Action::NONE;
+    case Action::CHANGE_LEAGUE_TWO:
+      this->game_ini_handler->setValue("league", "league", 1);
+      this->setCar(0);
+      return Action::NONE;
+    case Action::CHANGE_LEAGUE_THREE:
+      this->game_ini_handler->setValue("league", "league", 2);
+      this->setCar(0);
+      return Action::NONE;
     case Action::SET_DAMAGE:
       this->checkbox_damage->setEnabled(!this->checkbox_damage->getEnabled());
       return Action::NONE;
@@ -155,10 +171,16 @@ void SundayCup::changeCar(int change) {
     car = 0;
   }
 
-  std::string leagu_nr = this->game_ini_handler->getValue("league", "league");
-  std::string car_name = this->static_ini_handler->getValues("league" + leagu_nr, "car" + std::to_string(car))[2];
+  this->setCar(car);
+}
+
+void SundayCup::setCar(int car_id)
+{
+  std::string league_nr = this->game_ini_handler->getValue("league", "league");
+  std::string car_name = this->static_ini_handler->getValues("league" + league_nr, "car" + std::to_string(car_id))[2];
   this->text_car->setText(car_name);
-  this->game_ini_handler->setValue("player", "car", car);
+  this->game_ini_handler->setValue("player", "car", car_id);
+
 }
 
 void SundayCup::setTrack(int track)
