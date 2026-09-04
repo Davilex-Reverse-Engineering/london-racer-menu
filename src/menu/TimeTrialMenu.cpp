@@ -48,7 +48,7 @@ TimeTrialMenu::TimeTrialMenu(IniHandler * game_ini_handler, IniHandler * static_
   this->ui_elements.push_back(this->track_image);
 
   // Checkboxes
-  bool damage_enabled = true;
+  bool damage_enabled = false;
   this->game_ini_handler->setValue("options", "damage", damage_enabled);
   checkbox_damage = new UiCheckbox(593.0f, 283.0f, damage_enabled, Action::SET_DAMAGE);
   this->ui_elements.push_back(checkbox_damage);
