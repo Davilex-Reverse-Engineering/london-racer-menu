@@ -34,7 +34,7 @@ MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_ha
         this->menu = new HallOfFame(Menu::TIME_TRIAL_MENU);
       } else {
         this->current_menu = Menu::RESULTS;
-        this->menu = new Results();
+        this->menu = new Results(this->game_ini_handler, this->static_ini_handler);
       }
     } else {
       switch (previous) {
