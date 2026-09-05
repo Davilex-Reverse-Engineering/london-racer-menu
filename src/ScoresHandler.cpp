@@ -166,10 +166,12 @@ std::string ScoresHandler::name_to_utf8(void * name, size_t length)
   if (iconv_result == 0) {
     std::string result = std::string((char *)target_start, length);
     free(target_start);
+    SDL_iconv_close(iconv);
     return result;
   }
 
   SDL_Log("Failed convert with status %u (%i)", iconv_result, iconv_result);
   free(target_start);
+  SDL_iconv_close(iconv);
   return "";
 }
