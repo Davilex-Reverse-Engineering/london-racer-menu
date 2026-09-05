@@ -1,5 +1,7 @@
 #include "ScoresHandler.hpp"
 
+#include "Utils.hpp"
+
 ScoresHandler::ScoresHandler()
 {
 }
@@ -10,8 +12,7 @@ ScoresHandler::~ScoresHandler()
 
 bool ScoresHandler::load()
 {
-  size_t size = 0;
-  SDL_IOStream * stream = SDL_IOFromFile("Scores.dat", "rb");
+  SDL_IOStream * stream = SDL_IOFromFile(Utils::getFullPath(this->file_name).c_str(), "rb");
   if (stream == NULL) {
     SDL_Log("Could not load file Scores.dat as stream");
     return false;
@@ -109,6 +110,94 @@ bool ScoresHandler::load()
   return true;
 }
 
+bool ScoresHandler::write()
+{
+  SDL_IOStream * stream = SDL_IOFromFile(Utils::getFullPath(this->file_name).c_str(), "wb");
+  if (stream == NULL) {
+    SDL_Log("Could not load file Scores.dat as stream");
+    return false;
+  }
+
+  for(int32_t league = 0; league < 3; league++) {
+    if(!SDL_WriteS32LE(stream, (int32_t) this->lap_records.size())) {
+      SDL_Log("Could not write track count");
+      SDL_CloseIO(stream);
+      return false;
+    }
+    for(int32_t track = 0; track < (int32_t) this->lap_records.size(); track++) {
+      if(!SDL_WriteS32LE(stream, (int32_t) this->lap_records[track][league].size())) {
+        SDL_Log("Could not write entry count for track %u", track);
+        SDL_CloseIO(stream);
+        return false;
+      }
+      for(int32_t i = 0; i < (int32_t) this->lap_records[track][league].size(); i++) {
+        if(!SDL_WriteU8(stream, (uint8_t) this->lap_records[track][league][i].name.size())) {
+          SDL_Log("Could not write name length for entry %u for track %u", i, track);
+          SDL_CloseIO(stream);
+          return false;
+        }
+        void * name_data = this->string_to_name(this->lap_records[track][league][i].name);
+        if(!SDL_WriteIO(stream, name_data, 32)) {
+          SDL_Log("Could not write name for entry %u for track %u", i, track);
+          SDL_CloseIO(stream);
+          return false;
+        }
+        if(!SDL_WriteS32LE(stream, league)) {
+          SDL_Log("Could not write league for entry %u for track %u", i, track);
+          SDL_CloseIO(stream);
+          return false;
+        }
+        if(!SDL_WriteS32LE(stream, this->lap_records[track][league][i].car)) {
+          SDL_Log("Could not write car for entry %u for track %u", i, track);
+          SDL_CloseIO(stream);
+          return false;
+        }
+        if(!SDL_WriteU32LE(stream, this->lap_records[track][league][i].time_in_ms)) {
+          SDL_Log("Could not write time for entry %u for track %u", i, track);
+          SDL_CloseIO(stream);
+          return false;
+        }
+      }
+      if(!SDL_WriteS32LE(stream, (int32_t) this->total_records[track][league].size())) {
+        SDL_Log("Could not write entry count for track %u", track);
+        SDL_CloseIO(stream);
+        return false;
+      }
+      for(int32_t i = 0; i < (int32_t) this->total_records[track][league].size(); i++) {
+        if(!SDL_WriteU8(stream, (uint8_t) this->total_records[track][league][i].name.size())) {
+          SDL_Log("Could not write name length for entry %u for track %u", i, track);
+          SDL_CloseIO(stream);
+          return false;
+        }
+        void * name_data = this->string_to_name(this->total_records[track][league][i].name);
+        if(!SDL_WriteIO(stream, name_data, 32)) {
+          SDL_Log("Could not write name for entry %u for track %u", i, track);
+          SDL_CloseIO(stream);
+          return false;
+        }
+        if(!SDL_WriteS32LE(stream, league)) {
+          SDL_Log("Could not write league for entry %u for track %u", i, track);
+          SDL_CloseIO(stream);
+          return false;
+        }
+        if(!SDL_WriteS32LE(stream, this->total_records[track][league][i].car)) {
+          SDL_Log("Could not write car for entry %u for track %u", i, track);
+          SDL_CloseIO(stream);
+          return false;
+        }
+        if(!SDL_WriteU32LE(stream, this->total_records[track][league][i].time_in_ms)) {
+          SDL_Log("Could not write time for entry %u for track %u", i, track);
+          SDL_CloseIO(stream);
+          return false;
+        }
+      }
+    }
+  }
+
+  SDL_CloseIO(stream);
+  return false;
+}
+
 void ScoresHandler::printRecords()
 {
   for (size_t track = 0; track < lap_records.size(); track++) {
@@ -174,4 +263,29 @@ std::string ScoresHandler::name_to_utf8(void * name, size_t length)
   free(target_start);
   SDL_iconv_close(iconv);
   return "";
+}
+
+void * ScoresHandler::string_to_name(std::string &input_string)
+{
+  SDL_iconv_t iconv = SDL_iconv_open("UTF-8", "ISO-8859-1");
+  if ((size_t)iconv == SDL_ICONV_ERROR) {
+    SDL_Log("Failed to start iconv, ISO-8859-1 support might not be loadable");
+    return NULL;
+  }
+
+  const char * original = input_string.c_str();
+  size_t inbytesleft = input_string.length();
+  size_t outbytesleft = 32; // Names are always 32 bytes in total
+  void * target = SDL_calloc(outbytesleft, 1);
+  void * target_start = target;
+
+  size_t iconv_result = SDL_iconv(iconv, &original, &inbytesleft, (char **)&target, &outbytesleft);
+  if (iconv_result == 0) {
+    SDL_iconv_close(iconv);
+    return target_start;
+  }
+
+  SDL_iconv_close(iconv);
+  free(target_start);
+  return NULL;
 }

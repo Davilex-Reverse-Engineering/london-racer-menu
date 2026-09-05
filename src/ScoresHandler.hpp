@@ -21,6 +21,7 @@ public:
   ~ScoresHandler();
 
   bool load();
+  bool write();
   void printRecords();
 
   static std::string getTimeString(uint32_t time_in_ms);
@@ -32,6 +33,9 @@ private:
   std::map<int32_t, std::map<int32_t, std::map<int32_t, Record>>> total_records;
 
   std::string name_to_utf8(void * name, size_t length);
+  void * string_to_name(std::string &input_string);
+
+  const std::string file_name = "Scores.dat";
 };
 
 
