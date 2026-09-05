@@ -20,6 +20,7 @@ add_executable(${PROJECT_NAME} WIN32
   src/MenuManager.cpp
   src/IniHandler.cpp
   src/Utils.cpp
+  src/ScoresHandler.cpp
   src/ui/UiButton.cpp
   src/ui/UiCheckbox.cpp
   src/ui/UiRectangle.cpp

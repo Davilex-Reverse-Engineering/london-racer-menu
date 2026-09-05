@@ -1,0 +1,136 @@
+#include "ScoresHandler.hpp"
+
+ScoresHandler::ScoresHandler()
+{
+}
+
+ScoresHandler::~ScoresHandler()
+{
+}
+
+bool ScoresHandler::load()
+{
+  size_t size = 0;
+  SDL_IOStream * stream = SDL_IOFromFile("Scores.dat", "rb");
+  if (stream == NULL) {
+    SDL_Log("Could not load file Scores.dat as stream");
+    return false;
+  }
+
+  int32_t track_count = 0;
+
+  // The league count is hard coded here
+  for(int32_t league = 0; league < 3; league++) {
+    if(!SDL_ReadS32LE(stream, &track_count)) {
+      SDL_Log("Could not read track count");
+      SDL_CloseIO(stream);
+      return false;
+    }
+
+    for(int32_t track = 0; track < track_count; track++) {
+      if (lap_records.count(track) == 0) {
+        lap_records[track] = std::map<int32_t, std::map<int32_t, Record>>();
+      }
+      if (total_records.count(track) == 0) {
+        total_records[track] = std::map<int32_t, std::map<int32_t, Record>>();
+      }
+      int32_t entry_count = 0;
+      for (int32_t record_type = 0; record_type < 2; record_type++) {
+        if(!SDL_ReadS32LE(stream, &entry_count)) {
+          SDL_Log("Could not read entry count for track %u", track);
+          SDL_CloseIO(stream);
+          return false;
+        }
+        for(int32_t i = 0; i < entry_count; i++) {
+          if (lap_records[track].count(league) == 0) {
+            lap_records[track][league] = std::map<int32_t, Record>();
+          }
+          if (total_records[track].count(league) == 0) {
+            total_records[track][league] = std::map<int32_t, Record>();
+          }
+          Record entry;
+          uint8_t name_length = 0;
+          if(!SDL_ReadU8(stream, &name_length) || name_length == 0) {
+            SDL_Log("Could not read name length for entry %u for track %u", i, track);
+            SDL_CloseIO(stream);
+            return false;
+          }
+          void * name = SDL_calloc(32, sizeof(uint8_t));
+          if(!SDL_ReadIO(stream, name, 32)) {
+            SDL_Log("Could not read name for entry %u for track %u", i, track);
+            SDL_CloseIO(stream);
+            return false;
+          }
+          entry.name = name_to_utf8(name, name_length);
+          if (entry.name.empty()) {
+            SDL_Log("Could not convert name %s to utf-8", name);
+            free(name);
+            SDL_CloseIO(stream);
+            return false;
+          }
+          free(name);
+
+          int32_t entry_league = -1;
+          if(!SDL_ReadS32LE(stream, &entry_league) || league != entry_league) {
+            SDL_Log("Could not read league for entry %u for track %u", i, track);
+            SDL_CloseIO(stream);
+            return false;
+          }
+          if(!SDL_ReadS32LE(stream, &entry.car)) {
+            SDL_Log("Could not read car for entry %u for track %u", i, track);
+            SDL_CloseIO(stream);
+            return false;
+          }
+          if(!SDL_ReadU32LE(stream, &entry.time_in_ms)) {
+            SDL_Log("Could not read time for entry %u for track %u", i, track);
+            SDL_CloseIO(stream);
+            return false;
+          }
+          SDL_Log("Track %u entry %u league %u car %u  %s: %02i:%02i:%02i", track, i, league, entry.car, entry.name.c_str(), entry.time_in_ms / 1000 / 60, (entry.time_in_ms % 60000) / 1000, (entry.time_in_ms % 1000) / 10);
+          if (record_type == 0) {
+            if (lap_records[track].count(league) == 0) {
+              lap_records[track][league] = std::map<int32_t, Record>();
+            }
+            lap_records[track][league][i] = entry;
+          } else {
+            if (total_records[track].count(league) == 0) {
+              total_records[track][league] = std::map<int32_t, Record>();
+            }
+            total_records[track][league][i] = entry;
+          }
+        }
+      }
+    }
+  }
+  if (SDL_GetIOSize(stream) != SDL_SeekIO(stream, 0, SDL_IO_SEEK_CUR)) {
+    SDL_Log("Not all bytes of Scores.dat were read!");
+  }
+  SDL_CloseIO(stream);
+
+  return true;
+}
+
+std::string ScoresHandler::name_to_utf8(void * name, size_t length)
+{
+  SDL_iconv_t iconv = SDL_iconv_open("UTF-8", "ISO-8859-1");
+  if ((size_t)iconv == SDL_ICONV_ERROR) {
+    SDL_Log("Failed to start iconv, ISO-8859-1 support might not be loadable");
+    return "";
+  }
+  void * original = name;
+  size_t inbytesleft = length;
+  size_t outbytesleft = length * 3;
+  char * target = (char *) SDL_calloc(length, 3);  // 3 is probably overkill tbh
+  char * target_start = target;
+
+  size_t iconv_result = SDL_iconv(iconv, (const char **)&original, &inbytesleft, &target, &outbytesleft);
+  if (iconv_result == 0) {
+    std::string result = std::string((char *)target_start, length);
+    free(target_start);
+    return result;
+  }
+
+  SDL_Log("Failed convert with status %u (%i)", iconv_result, iconv_result);
+  free(target_start);
+  return "";
+}
