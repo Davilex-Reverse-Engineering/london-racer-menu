@@ -267,7 +267,7 @@ std::string ScoresHandler::name_to_utf8(void * name, size_t length)
 
 void * ScoresHandler::string_to_name(std::string &input_string)
 {
-  SDL_iconv_t iconv = SDL_iconv_open("UTF-8", "ISO-8859-1");
+  SDL_iconv_t iconv = SDL_iconv_open("ISO-8859-1", "UTF-8");
   if ((size_t)iconv == SDL_ICONV_ERROR) {
     SDL_Log("Failed to start iconv, ISO-8859-1 support might not be loadable");
     return NULL;
