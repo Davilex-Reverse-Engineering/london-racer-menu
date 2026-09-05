@@ -229,6 +229,7 @@ void ScoresHandler::insertRecord(int32_t track, int32_t league, Record &record, 
   }
   for(int32_t i = 0; i < records->size(); i++) {
     if ((*records)[i].time_in_ms > record.time_in_ms) {
+      // Insert record and return, moving old records down
       for(int32_t j = records->size() - 1; j > i; j--) {
         if (j < 1) {
           break;
