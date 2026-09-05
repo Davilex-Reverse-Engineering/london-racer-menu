@@ -15,6 +15,11 @@ typedef struct {
   uint32_t time_in_ms;
 } Record;
 
+enum RecordType {
+  LAP,
+  TOTAL,
+};
+
 class ScoresHandler {
 public:
   ScoresHandler();
@@ -23,6 +28,7 @@ public:
   bool load();
   bool write();
   void printRecords();
+  void insertRecord(int32_t track, int32_t league, Record &record, RecordType record_type);
 
   static std::string getTimeString(uint32_t time_in_ms);
 

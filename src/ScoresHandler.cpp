@@ -205,15 +205,41 @@ void ScoresHandler::printRecords()
       SDL_Log("\nLap records for track %u league %u:", track, league + 1);
       for (size_t position = 0; position < lap_records[track][league].size(); position++) {
         Record entry = lap_records[track][league][position];
-        SDL_Log("%u.  %s with car %u: %s", position + 1, entry.name.c_str(), entry.car, ScoresHandler::getTimeString(entry.time_in_ms).c_str());
+        SDL_Log("%u.  %s with car %u: %s (%u)", position + 1, entry.name.c_str(), entry.car, ScoresHandler::getTimeString(entry.time_in_ms).c_str(), entry.time_in_ms);
       }
       SDL_Log("\nTotal records for track %u league %u:", track, league + 1);
       for (size_t position = 0; position < total_records[track][league].size(); position++) {
         Record entry = total_records[track][league][position];
-        SDL_Log("%u.  %s with car %u: %s", position + 1, entry.name.c_str(), entry.car, ScoresHandler::getTimeString(entry.time_in_ms).c_str());
+        SDL_Log("%u.  %s with car %u: %s (%u)", position + 1, entry.name.c_str(), entry.car, ScoresHandler::getTimeString(entry.time_in_ms).c_str(), entry.time_in_ms);
       }
     }
   }
+}
+
+void ScoresHandler::insertRecord(int32_t track, int32_t league, Record &record, RecordType record_type)
+{
+  std::map<int32_t, Record> * records = NULL;
+  if (record_type == RecordType::LAP) {
+    records = &lap_records[track][league];
+  } else if (record_type == RecordType::TOTAL) {
+    records = &total_records[track][league];
+  } else {
+    SDL_Log("No valid record type provided");
+    return;
+  }
+  for(int32_t i = 0; i < records->size(); i++) {
+    if ((*records)[i].time_in_ms > record.time_in_ms) {
+      for(int32_t j = records->size() - 1; j > i; j--) {
+        if (j < 1) {
+          break;
+        }
+        (*records)[j] = (*records)[j-1];
+      }
+      (*records)[i] = record;
+      return;
+    }
+  }
+  SDL_Log("Record provided did not beat any existing record");
 }
 
 std::string ScoresHandler::getTimeString(uint32_t time_in_ms)
