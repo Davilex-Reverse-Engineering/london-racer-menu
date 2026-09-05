@@ -29,6 +29,7 @@ public:
   ~ScoresHandler();
 
   bool load();
+  void printRecords();
 
 private:
   // these maps look like this: records[track][league][position]

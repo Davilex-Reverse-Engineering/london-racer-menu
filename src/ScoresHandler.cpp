@@ -86,7 +86,6 @@ bool ScoresHandler::load()
             SDL_CloseIO(stream);
             return false;
           }
-          SDL_Log("Track %u entry %u league %u car %u  %s: %02i:%02i:%02i", track, i, league, entry.car, entry.name.c_str(), entry.time_in_ms / 1000 / 60, (entry.time_in_ms % 60000) / 1000, (entry.time_in_ms % 1000) / 10);
           if (record_type == 0) {
             if (lap_records[track].count(league) == 0) {
               lap_records[track][league] = std::map<int32_t, Record>();
@@ -108,6 +107,24 @@ bool ScoresHandler::load()
   SDL_CloseIO(stream);
 
   return true;
+}
+
+void ScoresHandler::printRecords()
+{
+  for (size_t track = 0; track < lap_records.size(); track++) {
+    for (size_t league = 0; league < lap_records[track].size(); league++) {
+      SDL_Log("\nLap records for track %u league %u:", track, league);
+      for (size_t position = 0; position < lap_records[track][league].size(); position++) {
+        Record entry = lap_records[track][league][position];
+        SDL_Log("%u.  %s with car %u: %02i:%02i:%02i", position + 1, entry.name.c_str(), entry.car, entry.time_in_ms / 1000 / 60, (entry.time_in_ms % 60000) / 1000, (entry.time_in_ms % 1000) / 10);
+      }
+      SDL_Log("\nTotal records for track %u league %u:", track, league);
+      for (size_t position = 0; position < total_records[track][league].size(); position++) {
+        Record entry = total_records[track][league][position];
+        SDL_Log("%u.  %s with car %u: %02i:%02i:%02i", position + 1, entry.name.c_str(), entry.car, entry.time_in_ms / 1000 / 60, (entry.time_in_ms % 60000) / 1000, (entry.time_in_ms % 1000) / 10);
+      }
+    }
+  }
 }
 
 std::string ScoresHandler::name_to_utf8(void * name, size_t length)
