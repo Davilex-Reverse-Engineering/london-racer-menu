@@ -285,6 +285,7 @@ void * ScoresHandler::string_to_name(std::string &input_string)
     return target_start;
   }
 
+  SDL_Log("Failed convert with status %u (%i)", iconv_result, iconv_result);
   SDL_iconv_close(iconv);
   free(target_start);
   return NULL;
