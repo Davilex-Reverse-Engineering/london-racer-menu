@@ -113,18 +113,40 @@ void ScoresHandler::printRecords()
 {
   for (size_t track = 0; track < lap_records.size(); track++) {
     for (size_t league = 0; league < lap_records[track].size(); league++) {
-      SDL_Log("\nLap records for track %u league %u:", track, league);
+      SDL_Log("\nLap records for track %u league %u:", track, league + 1);
       for (size_t position = 0; position < lap_records[track][league].size(); position++) {
         Record entry = lap_records[track][league][position];
-        SDL_Log("%u.  %s with car %u: %02i:%02i:%02i", position + 1, entry.name.c_str(), entry.car, entry.time_in_ms / 1000 / 60, (entry.time_in_ms % 60000) / 1000, (entry.time_in_ms % 1000) / 10);
+        SDL_Log("%u.  %s with car %u: %s", position + 1, entry.name.c_str(), entry.car, ScoresHandler::getTimeString(entry.time_in_ms).c_str());
       }
-      SDL_Log("\nTotal records for track %u league %u:", track, league);
+      SDL_Log("\nTotal records for track %u league %u:", track, league + 1);
       for (size_t position = 0; position < total_records[track][league].size(); position++) {
         Record entry = total_records[track][league][position];
-        SDL_Log("%u.  %s with car %u: %02i:%02i:%02i", position + 1, entry.name.c_str(), entry.car, entry.time_in_ms / 1000 / 60, (entry.time_in_ms % 60000) / 1000, (entry.time_in_ms % 1000) / 10);
+        SDL_Log("%u.  %s with car %u: %s", position + 1, entry.name.c_str(), entry.car, ScoresHandler::getTimeString(entry.time_in_ms).c_str());
       }
     }
   }
+}
+
+std::string ScoresHandler::getTimeString(uint32_t time_in_ms)
+{
+  uint32_t minutes = time_in_ms / 1000 / 60;
+  uint32_t seconds = (time_in_ms % 60000) / 1000;
+  uint32_t centiseconds = (time_in_ms % 1000) / 10;
+
+  std::string seconds_string = "";
+  if (seconds < 10) {
+    seconds_string += "0";
+  }
+  seconds_string += std::to_string(seconds);
+
+
+  std::string centiseconds_string = "";
+  if (centiseconds < 10) {
+    centiseconds_string += "0";
+  }
+  centiseconds_string += std::to_string(centiseconds);
+
+  return std::to_string(minutes) + ":" + seconds_string + ":" + centiseconds_string;
 }
 
 std::string ScoresHandler::name_to_utf8(void * name, size_t length)

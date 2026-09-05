@@ -10,14 +10,6 @@
 #include "Input.hpp"
 
 typedef struct {
-  uint8_t name_length;
-  uint8_t name[32];
-  int32_t league;
-  int32_t car;
-  uint32_t time_in_ms;
-} ScoreEntry;
-
-typedef struct {
   std::string name;
   int32_t car;
   uint32_t time_in_ms;
@@ -30,6 +22,8 @@ public:
 
   bool load();
   void printRecords();
+
+  static std::string getTimeString(uint32_t time_in_ms);
 
 private:
   // these maps look like this: records[track][league][position]
