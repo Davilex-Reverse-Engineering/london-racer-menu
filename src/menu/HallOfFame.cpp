@@ -206,9 +206,6 @@ void HallOfFame::add_new_record(Menu last_menu)
     return;
   }
 
-  // After setting the values, we need finished to be set to 0
-  this->game_ini_handler->setValue("player", "finished", 0);
-
   // Determing track
   std::string etappe = this->game_ini_handler->getValue("etappe", "etappe");
   int track_count = this->static_ini_handler->getInt("tracks", "count");

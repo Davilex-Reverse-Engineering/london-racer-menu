@@ -101,21 +101,25 @@ Action MenuManager::update(std::vector<Input> inputs)
   }
   switch (action) {
     case Action::OPEN_RACE_MENU:
+      this->game_ini_handler->setValue("player", "finished", 0);
       delete this->menu;
       this->menu = new RaceMenu();
       current_menu = Menu::RACE_MENU;
       break;
     case Action::OPEN_TOURNAMENT_MENU:
+      this->game_ini_handler->setValue("player", "finished", 0);
       delete this->menu;
       this->menu = new TournamentMenu(game_ini_handler);
       current_menu = Menu::TOURNAMENT_MENU;
       break;
     case Action::OPEN_SUNDAY_CUP:
+      this->game_ini_handler->setValue("player", "finished", 0);
       delete this->menu;
       this->menu = new SundayCup(game_ini_handler, static_ini_handler);
       current_menu = Menu::SUNDAY_CUP;
       break;
     case Action::OPEN_TIME_TRIAL_MENU:
+      this->game_ini_handler->setValue("player", "finished", 0);
       delete this->menu;
       this->menu = new TimeTrialMenu(game_ini_handler, static_ini_handler);
       current_menu = Menu::TIME_TRIAL_MENU;
