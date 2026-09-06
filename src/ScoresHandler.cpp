@@ -218,6 +218,10 @@ void ScoresHandler::printRecords()
 
 void ScoresHandler::insertRecord(int32_t track, int32_t league, Record &record, RecordType record_type)
 {
+  if (record.time_in_ms == 0) {
+    SDL_Log("Not adding record without time");
+    return;
+  }
   std::map<int32_t, Record> * records = NULL;
   if (record_type == RecordType::LAP) {
     records = &lap_records[track][league];
