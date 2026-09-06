@@ -35,14 +35,13 @@ public:
 private:
   // these maps look like this: records[track][league][position]
   // Position starts at 0 
-  std::map<int32_t, std::map<int32_t, std::map<int32_t, Record>>> lap_records;
-  std::map<int32_t, std::map<int32_t, std::map<int32_t, Record>>> total_records;
+  std::map<int32_t, std::map<int32_t, std::vector<Record>>> lap_records;
+  std::map<int32_t, std::map<int32_t, std::vector<Record>>> total_records;
 
   std::string name_to_utf8(void * name, size_t length);
   void * string_to_name(std::string &input_string);
 
   const std::string file_name = "Scores.dat";
 };
-
 
 #endif // SCORES_HANDLER_HPP

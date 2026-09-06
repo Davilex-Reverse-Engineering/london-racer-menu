@@ -30,10 +30,10 @@ bool ScoresHandler::load()
 
     for(int32_t track = 0; track < track_count; track++) {
       if (lap_records.count(track) == 0) {
-        lap_records[track] = std::map<int32_t, std::map<int32_t, Record>>();
+        lap_records[track] = std::map<int32_t, std::vector<Record>>();
       }
       if (total_records.count(track) == 0) {
-        total_records[track] = std::map<int32_t, std::map<int32_t, Record>>();
+        total_records[track] = std::map<int32_t, std::vector<Record>>();
       }
       int32_t entry_count = 0;
       for (int32_t record_type = 0; record_type < 2; record_type++) {
@@ -43,12 +43,6 @@ bool ScoresHandler::load()
           return false;
         }
         for(int32_t i = 0; i < entry_count; i++) {
-          if (lap_records[track].count(league) == 0) {
-            lap_records[track][league] = std::map<int32_t, Record>();
-          }
-          if (total_records[track].count(league) == 0) {
-            total_records[track][league] = std::map<int32_t, Record>();
-          }
           Record entry;
           uint8_t name_length = 0;
           if(!SDL_ReadU8(stream, &name_length) || name_length == 0) {
@@ -89,14 +83,14 @@ bool ScoresHandler::load()
           }
           if (record_type == 0) {
             if (lap_records[track].count(league) == 0) {
-              lap_records[track][league] = std::map<int32_t, Record>();
+              lap_records[track][league] = std::vector<Record>();
             }
-            lap_records[track][league][i] = entry;
+            lap_records[track][league].push_back(entry);
           } else {
             if (total_records[track].count(league) == 0) {
-              total_records[track][league] = std::map<int32_t, Record>();
+              total_records[track][league] = std::vector<Record>();
             }
-            total_records[track][league][i] = entry;
+            total_records[track][league].push_back(entry);
           }
         }
       }
@@ -222,7 +216,7 @@ void ScoresHandler::insertRecord(int32_t track, int32_t league, Record &record, 
     SDL_Log("Not adding record without time");
     return;
   }
-  std::map<int32_t, Record> * records = NULL;
+  std::vector<Record> * records = NULL;
   if (record_type == RecordType::LAP) {
     records = &lap_records[track][league];
   } else if (record_type == RecordType::TOTAL) {
