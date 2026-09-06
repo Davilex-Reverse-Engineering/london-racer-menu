@@ -235,6 +235,7 @@ void ScoresHandler::insertRecord(int32_t track, int32_t league, Record &record, 
         (*records)[j] = (*records)[j-1];
       }
       (*records)[i] = record;
+      this->write();
       return;
     }
   }

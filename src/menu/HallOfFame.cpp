@@ -12,6 +12,9 @@ HallOfFame::HallOfFame(IniHandler * game_ini_handler, IniHandler * static_ini_ha
   this->scores_handler.load();
   this->title = "Hall of Fame";
 
+  // Add new record in case it makes sense
+  this->add_new_record(last_menu);
+
   // Items are added from bottom left to top right
   Action back_action = get_exit_action(last_menu);
   this->ui_elements.push_back(new UiButton(10.0f, 415.0f, 100.0f, 50.0f, "Back", back_action));
@@ -190,4 +193,52 @@ Action HallOfFame::get_exit_action(Menu last_menu)
     return Action::OPEN_RACE_MENU;
     break;
   }
+}
+
+void HallOfFame::add_new_record(Menu last_menu)
+{
+  // The screen to return to should be a menu for a race type
+  if (last_menu != Menu::SUNDAY_CUP && last_menu != Menu::TIME_TRIAL_MENU && last_menu != Menu::LEAGUE) {
+    return;
+  }
+  // Finished is set to false by menu manager if we're not coming out of a race
+  if (!this->game_ini_handler->getBool("player", "finished")) {
+    return;
+  }
+
+  // After setting the values, we need finished to be set to 0
+  this->game_ini_handler->setValue("player", "finished", 0);
+
+  // Determing track
+  std::string etappe = this->game_ini_handler->getValue("etappe", "etappe");
+  int track_count = this->static_ini_handler->getInt("tracks", "count");
+  bool has_laps = false;
+  for (int i = 0; i < track_count; i++) {
+    std::vector<std::string> track_entries = this->static_ini_handler->getValues("tracks", std::to_string(i));
+    if (etappe == track_entries[0]) {
+      this->track = i;
+      has_laps = track_entries[4] == "0";
+      break;
+    }
+  }
+
+  int league = this->game_ini_handler->getInt("league", "league");
+  Record record;
+  record.car = this->game_ini_handler->getInt("player", "car");
+  record.name = "Player";
+
+  // First try adding lap times
+  int nrlaps = this->game_ini_handler->getInt("player", "lapcount");
+  for(int i = 1; i <= nrlaps; i++) {
+    record.time_in_ms = this->game_ini_handler->getInt("player", "lap_" + std::to_string(i) +"_time");
+    this->scores_handler.insertRecord(this->track, league, record, RecordType::LAP);
+  }
+
+  // Make sure the lap count makes sense
+  if (has_laps && nrlaps != 2) {
+    return;
+  }
+
+  record.time_in_ms = this->game_ini_handler->getInt("player", "tracktime");
+  this->scores_handler.insertRecord(this->track, league, record, RecordType::TOTAL);
 }

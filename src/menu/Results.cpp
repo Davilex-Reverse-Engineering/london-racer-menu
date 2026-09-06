@@ -11,7 +11,7 @@ Results::Results(IniHandler * game_ini_handler, IniHandler * static_ini_handler)
   this->title = "Results";
 
   // Items are added from bottom left to top right
-  this->ui_elements.push_back(new UiButton(10.0f, 415.0f, 100.0f, 50.0f, "Continue", Action::OPEN_RACE_MENU));
+  this->ui_elements.push_back(new UiButton(10.0f, 415.0f, 100.0f, 50.0f, "Continue", Action::OPEN_HALL_OF_FAME));
 
   this->ui_elements.push_back(new UiRectangle(215.0f, 75.0f, 414.0f, 24.0f, {120, 189, 34, 255}));
   this->ui_elements.push_back(new UiRectangle(215.0f, 99.0f, 414.0f, 145.0f, {71, 110, 23, 200}));

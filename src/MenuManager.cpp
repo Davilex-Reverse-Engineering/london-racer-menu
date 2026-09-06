@@ -24,17 +24,26 @@ MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_ha
   this->game_ini_handler = game_ini_handler;
   this->static_ini_handler = static_ini_handler;
   if (this->menu_ini_handler->getBool("general", "firsttime")) {
+    this->game_ini_handler->setValue("player", "finished", 0);
     this->current_menu = Menu::RACE_MENU;
     this->menu = new RaceMenu();
   } else {
     int previous = this->menu_ini_handler->getInt("general", "previous");
     if (this->game_ini_handler->getBool("player", "finished")) {
-      if (previous == 1) { // Time Trial brings you to hall of fame
-        this->current_menu = Menu::HALL_OF_FAME;
-        this->menu = new HallOfFame(game_ini_handler, static_ini_handler, Menu::TIME_TRIAL_MENU);
-      } else {
-        this->current_menu = Menu::RESULTS;
-        this->menu = new Results(this->game_ini_handler, this->static_ini_handler);
+      this->current_menu = Menu::HALL_OF_FAME;
+      switch (previous) {
+        case 0:
+          this->menu = new HallOfFame(game_ini_handler, static_ini_handler, Menu::SUNDAY_CUP);
+          break;
+        case 1:
+          this->menu = new HallOfFame(game_ini_handler, static_ini_handler, Menu::TIME_TRIAL_MENU);
+          break;
+        case 2:
+          this->menu = new HallOfFame(game_ini_handler, static_ini_handler, Menu::TIME_TRIAL_MENU);
+          break;
+        default:
+          this->menu = new HallOfFame(game_ini_handler, static_ini_handler, Menu::RACE_MENU);
+          break;
       }
     } else {
       switch (previous) {

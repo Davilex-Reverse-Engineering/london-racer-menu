@@ -40,6 +40,7 @@ private:
     void load_track_image();
     void load_records();
     Action get_exit_action(Menu last_menu);
+    void add_new_record(Menu last_menu);
 };
 
 #endif // MENU_HALL_OF_FAME_HPP
