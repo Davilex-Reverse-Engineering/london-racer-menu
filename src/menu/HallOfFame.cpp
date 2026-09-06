@@ -106,7 +106,7 @@ void HallOfFame::load_records()
 
     std::vector<std::string> car_values = this->static_ini_handler->getValues("league" + std::to_string(league), "car" + std::to_string((*lap_records)[i].car));
     std::string car_image_bmp = car_values[2] + ".bmp";
-    this->ui_elements.push_back(new UiImage(384.0f, 320.0f + (18.0f * (float) i), 60.0f, 18.0f, car_image_bmp));
+    this->ui_elements.push_back(new UiImage(384.0f, 320.0f + (18.0f * (float) i), 60.0f, 18.0f, car_image_bmp, true));
   }
 
 
@@ -119,7 +119,7 @@ void HallOfFame::load_records()
 
     std::vector<std::string> car_values = this->static_ini_handler->getValues("league" + std::to_string(league), "car" + std::to_string((*total_records)[i].car));
     std::string car_image_bmp = car_values[2] + ".bmp";
-    this->ui_elements.push_back(new UiImage(384.0f, 400.0f + (18.0f * (float) i), 60.0f, 18.0f, car_image_bmp));
+    this->ui_elements.push_back(new UiImage(384.0f, 400.0f + (18.0f * (float) i), 60.0f, 18.0f, car_image_bmp, true));
   }
 }
 

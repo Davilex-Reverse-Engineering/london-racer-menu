@@ -9,7 +9,7 @@
 
 class UiImage : public UiElement {
 public:
-  UiImage(float x, float y, float width, float height, const std::string &file_name = "");
+  UiImage(float x, float y, float width, float height, const std::string &file_name = "", bool use_transparency=false);
   ~UiImage();
 
   void draw(SDL_Renderer * renderer, bool selected = false);
@@ -20,6 +20,7 @@ private:
   std::string file_name = "";
   SDL_Texture * image = NULL;
   bool image_loaded = false;
+  bool use_transparency = false;
 };
 
 #endif // UI_IMAGE_HPP

@@ -37,10 +37,14 @@ std::string Utils::getFullPath(const std::string &file_name) {
   return file_name;
 }
 
-SDL_Texture * Utils::createTexture(SDL_Renderer *renderer, const std::string &file_name) {
+SDL_Texture * Utils::createTexture(SDL_Renderer *renderer, const std::string &file_name, bool use_transparency) {
   std::string full_path = Utils::getFullPath(file_name);
   SDL_Surface * surface = SDL_LoadBMP(full_path.c_str());
   if (surface) {
+    if (use_transparency) {
+        uint32_t colorKey = SDL_MapRGB(SDL_GetPixelFormatDetails(surface->format), NULL, 0, 0, 0);
+        SDL_SetSurfaceColorKey(surface, true, colorKey);
+    }
     SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_DestroySurface(surface);
     return texture;
