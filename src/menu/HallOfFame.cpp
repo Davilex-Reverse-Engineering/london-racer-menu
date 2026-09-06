@@ -143,7 +143,7 @@ void HallOfFame::load_records()
     }
   }
 
-  std::vector<Record> * total_records = this->scores_handler.getLapRecords(this->track, league);
+  std::vector<Record> * total_records = this->scores_handler.getTotalRecords(this->track, league);
   for(size_t i = 0; i < total_records->size(); i++) {
     if (this->totals_names.size() != total_records->size()) {
       UiText * text = new UiText(235.0f, 403.0f + (18.0f * (float) i), (*total_records)[i].name, {255, 255, 255, 255});
