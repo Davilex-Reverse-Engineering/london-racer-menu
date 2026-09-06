@@ -29,6 +29,8 @@ public:
   bool write();
   void printRecords();
   void insertRecord(int32_t track, int32_t league, Record &record, RecordType record_type);
+  std::vector<Record> * getLapRecords(int32_t track, int32_t league) {return &lap_records[track][league];};
+  std::vector<Record> * getTotalRecords(int32_t track, int32_t league) {return &total_records[track][league];};
 
   static std::string getTimeString(uint32_t time_in_ms);
 

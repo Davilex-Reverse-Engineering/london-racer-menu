@@ -31,7 +31,7 @@ MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_ha
     if (this->game_ini_handler->getBool("player", "finished")) {
       if (previous == 1) { // Time Trial brings you to hall of fame
         this->current_menu = Menu::HALL_OF_FAME;
-        this->menu = new HallOfFame(Menu::TIME_TRIAL_MENU);
+        this->menu = new HallOfFame(game_ini_handler, static_ini_handler, Menu::TIME_TRIAL_MENU);
       } else {
         this->current_menu = Menu::RESULTS;
         this->menu = new Results(this->game_ini_handler, this->static_ini_handler);
@@ -123,7 +123,7 @@ Action MenuManager::update(std::vector<Input> inputs)
       break;
     case Action::OPEN_HALL_OF_FAME:
       delete this->menu;
-      this->menu = new HallOfFame(current_menu);
+      this->menu = new HallOfFame(game_ini_handler, static_ini_handler, current_menu);
       current_menu = Menu::HALL_OF_FAME;
       break;
     case Action::OPEN_PLAYER_MENU:
