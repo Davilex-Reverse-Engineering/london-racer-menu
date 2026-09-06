@@ -17,7 +17,11 @@ HallOfFame::HallOfFame(IniHandler * game_ini_handler, IniHandler * static_ini_ha
 
   // Items are added from bottom left to top right
   Action back_action = get_exit_action(last_menu);
-  this->ui_elements.push_back(new UiButton(10.0f, 415.0f, 100.0f, 50.0f, "Back", back_action));
+  std::string back_button_text = "Back";
+  if (this->game_ini_handler->getBool("player", "finished")) {
+    back_button_text = "Continue";
+  }
+  this->ui_elements.push_back(new UiButton(10.0f, 415.0f, 100.0f, 50.0f, back_button_text, back_action));
 
   this->ui_elements.push_back(new UiRectangle(215.0f, 75.0f, 414.0f, 24.0f, {120, 189, 34, 255}));
   this->ui_elements.push_back(new UiRectangle(215.0f, 99.0f, 414.0f, 122.0f, {71, 110, 23, 200}));
@@ -31,13 +35,16 @@ HallOfFame::HallOfFame(IniHandler * game_ini_handler, IniHandler * static_ini_ha
   this->load_track_image();
   this->load_records();
 
-  this->ui_elements.push_back(new UiButton(270.0f, 224.0f, 64.0f, 24.0f, "<", Action::CHANGE_TRACK_LEFT));
-  this->ui_elements.push_back(new UiButton(510.0f, 224.0f, 64.0f, 24.0f, ">", Action::CHANGE_TRACK_RIGHT));
+  // Only allow switching track and league if this is not being shown first thing after finishing a race
+  if (!this->game_ini_handler->getBool("player", "finished")) {
+    this->ui_elements.push_back(new UiButton(270.0f, 224.0f, 64.0f, 24.0f, "<", Action::CHANGE_TRACK_LEFT));
+    this->ui_elements.push_back(new UiButton(510.0f, 224.0f, 64.0f, 24.0f, ">", Action::CHANGE_TRACK_RIGHT));
 
 
-  this->ui_elements.push_back(new UiButton(215.0f, 271.0f, 105.0f, 24.0f, "League 1", Action::CHANGE_LEAGUE_ONE));
-  this->ui_elements.push_back(new UiButton(320.0f, 271.0f, 105.0f, 24.0f, "League 2", Action::CHANGE_LEAGUE_TWO));
-  this->ui_elements.push_back(new UiButton(425.0f, 271.0f, 105.0f, 24.0f, "League 3", Action::CHANGE_LEAGUE_THREE));
+    this->ui_elements.push_back(new UiButton(215.0f, 271.0f, 105.0f, 24.0f, "League 1", Action::CHANGE_LEAGUE_ONE));
+    this->ui_elements.push_back(new UiButton(320.0f, 271.0f, 105.0f, 24.0f, "League 2", Action::CHANGE_LEAGUE_TWO));
+    this->ui_elements.push_back(new UiButton(425.0f, 271.0f, 105.0f, 24.0f, "League 3", Action::CHANGE_LEAGUE_THREE));
+  }
 
   this->selected = 0;
 }
@@ -179,19 +186,22 @@ void HallOfFame::load_records()
 
 Action HallOfFame::get_exit_action(Menu last_menu)
 {
+  if(this->game_ini_handler->getBool("player", "finished")) {
+    return Action::OPEN_RESULTS;
+  }
   switch (last_menu) {
-  case Menu::SUNDAY_CUP:
-    return Action::OPEN_SUNDAY_CUP;
-    break;
-  case Menu::TIME_TRIAL_MENU:
-    return Action::OPEN_TIME_TRIAL_MENU;
-    break;
-  case Menu::LEAGUE:
-    return Action::OPEN_LEAGUE;
-    break;
-  default:
-    return Action::OPEN_RACE_MENU;
-    break;
+    case Menu::SUNDAY_CUP:
+      return Action::OPEN_SUNDAY_CUP;
+      break;
+    case Menu::TIME_TRIAL_MENU:
+      return Action::OPEN_TIME_TRIAL_MENU;
+      break;
+    case Menu::LEAGUE:
+      return Action::OPEN_LEAGUE;
+      break;
+    default:
+      return Action::OPEN_RACE_MENU;
+      break;
   }
 }
 

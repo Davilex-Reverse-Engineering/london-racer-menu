@@ -4,14 +4,14 @@
 #include "../ui/UiRectangle.hpp"
 #include "../ui/UiImage.hpp"
 
-Results::Results(IniHandler * game_ini_handler, IniHandler * static_ini_handler)
+Results::Results(IniHandler * game_ini_handler, IniHandler * static_ini_handler, Menu last_menu)
 {
   this->game_ini_handler = game_ini_handler;
   this->static_ini_handler = static_ini_handler;
   this->title = "Results";
 
   // Items are added from bottom left to top right
-  this->ui_elements.push_back(new UiButton(10.0f, 415.0f, 100.0f, 50.0f, "Continue", Action::OPEN_HALL_OF_FAME));
+  this->ui_elements.push_back(new UiButton(10.0f, 415.0f, 100.0f, 50.0f, "Continue", get_exit_action(last_menu)));
 
   this->ui_elements.push_back(new UiRectangle(215.0f, 75.0f, 414.0f, 24.0f, {120, 189, 34, 255}));
   this->ui_elements.push_back(new UiRectangle(215.0f, 99.0f, 414.0f, 145.0f, {71, 110, 23, 200}));
@@ -28,4 +28,22 @@ Results::Results(IniHandler * game_ini_handler, IniHandler * static_ini_handler)
 
 Results::~Results()
 {
+}
+
+Action Results::get_exit_action(Menu last_menu)
+{
+  switch (last_menu) {
+    case Menu::SUNDAY_CUP:
+      return Action::OPEN_SUNDAY_CUP;
+      break;
+    case Menu::TIME_TRIAL_MENU:
+      return Action::OPEN_TIME_TRIAL_MENU;
+      break;
+    case Menu::LEAGUE:
+      return Action::OPEN_LEAGUE;
+      break;
+    default:
+      return Action::OPEN_RACE_MENU;
+      break;
+  }
 }

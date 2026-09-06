@@ -8,12 +8,14 @@
 
 class Results : public BaseMenu {
 public:
-    Results(IniHandler * game_ini_handler, IniHandler * static_ini_handler);
+    Results(IniHandler * game_ini_handler, IniHandler * static_ini_handler, Menu last_menu);
     ~Results();
 
 private:
     IniHandler * game_ini_handler = NULL;
     IniHandler * static_ini_handler = NULL;
+
+    Action get_exit_action(Menu last_menu);
 };
 
 #endif // MENU_RESULTS_HPP

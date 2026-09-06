@@ -28,41 +28,25 @@ MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_ha
     this->current_menu = Menu::RACE_MENU;
     this->menu = new RaceMenu();
   } else {
-    int previous = this->menu_ini_handler->getInt("general", "previous");
     if (this->game_ini_handler->getBool("player", "finished")) {
       this->current_menu = Menu::HALL_OF_FAME;
-      switch (previous) {
-        case 0:
-          this->menu = new HallOfFame(game_ini_handler, static_ini_handler, Menu::SUNDAY_CUP);
-          break;
-        case 1:
-          this->menu = new HallOfFame(game_ini_handler, static_ini_handler, Menu::TIME_TRIAL_MENU);
-          break;
-        case 2:
-          this->menu = new HallOfFame(game_ini_handler, static_ini_handler, Menu::TIME_TRIAL_MENU);
-          break;
-        default:
-          this->menu = new HallOfFame(game_ini_handler, static_ini_handler, Menu::RACE_MENU);
-          break;
-      }
+      this->menu = new HallOfFame(game_ini_handler, static_ini_handler, this->getLastMenuFromPrevious());
     } else {
-      switch (previous) {
-        case 0:
-          this->current_menu = Menu::SUNDAY_CUP;
+      this->current_menu = this->getLastMenuFromPrevious();
+      switch (this->current_menu) {
+        case Menu::SUNDAY_CUP:
           this->menu = new SundayCup(game_ini_handler, static_ini_handler);
           break;
-        case 1:
-          this->current_menu = Menu::TIME_TRIAL_MENU;
+        case Menu::TIME_TRIAL_MENU:
           this->menu = new TimeTrialMenu(game_ini_handler, static_ini_handler);
           break;
-        case 2:
-          this->current_menu = Menu::LEAGUE;
+        case Menu::LEAGUE:
           this->menu = new League(game_ini_handler, static_ini_handler);
           break;
-      default:
-        this->current_menu = Menu::RACE_MENU;
-        this->menu = new RaceMenu();
-        break;
+        default:
+          this->current_menu = Menu::RACE_MENU;
+          this->menu = new RaceMenu();
+          break;
       }
     }
   }
@@ -139,6 +123,11 @@ Action MenuManager::update(std::vector<Input> inputs)
       this->menu = new HallOfFame(game_ini_handler, static_ini_handler, current_menu);
       current_menu = Menu::HALL_OF_FAME;
       break;
+    case Action::OPEN_RESULTS:
+      delete this->menu;
+      this->menu = new Results(game_ini_handler, static_ini_handler, this->getLastMenuFromPrevious());
+      current_menu = Menu::HALL_OF_FAME;
+      break;
     case Action::OPEN_PLAYER_MENU:
       delete this->menu;
       this->menu = new Garage();
@@ -174,6 +163,7 @@ Action MenuManager::update(std::vector<Input> inputs)
       this->setPreviousValue();
       return action;
     case Action::QUIT:
+      this->game_ini_handler->setValue("player", "finished", 0);
       this->menu_ini_handler->setValue("general", "exitcode", 255);
       return action;
       break;
@@ -235,4 +225,23 @@ void MenuManager::loadMusic()
 
   this->menu_ini_handler->setValue("music", "last", music);
   playing_music = true;
+}
+
+Menu MenuManager::getLastMenuFromPrevious()
+{
+  int previous = this->menu_ini_handler->getInt("general", "previous");
+  switch (previous) {
+    case 0:
+      return Menu::SUNDAY_CUP;
+      break;
+    case 1:
+      return Menu::TIME_TRIAL_MENU;
+      break;
+    case 2:
+      return Menu::LEAGUE;
+      break;
+    default:
+      return Menu::RACE_MENU;
+      break;
+  }
 }

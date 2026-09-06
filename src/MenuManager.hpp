@@ -38,6 +38,8 @@ private:
 
   void setPreviousValue();
   void loadMusic();
+
+  Menu getLastMenuFromPrevious();
 };
 
 #endif // MENU_MANAGER_HPP
