@@ -28,9 +28,13 @@ HallOfFame::HallOfFame(IniHandler * game_ini_handler, IniHandler * static_ini_ha
   this->load_track_image();
   this->load_records();
 
-  // The change track buttons don't work yet
   this->ui_elements.push_back(new UiButton(270.0f, 224.0f, 64.0f, 24.0f, "<", Action::CHANGE_TRACK_LEFT));
   this->ui_elements.push_back(new UiButton(510.0f, 224.0f, 64.0f, 24.0f, ">", Action::CHANGE_TRACK_RIGHT));
+
+
+  this->ui_elements.push_back(new UiButton(215.0f, 271.0f, 105.0f, 24.0f, "League 1", Action::CHANGE_LEAGUE_ONE));
+  this->ui_elements.push_back(new UiButton(320.0f, 271.0f, 105.0f, 24.0f, "League 2", Action::CHANGE_LEAGUE_TWO));
+  this->ui_elements.push_back(new UiButton(425.0f, 271.0f, 105.0f, 24.0f, "League 3", Action::CHANGE_LEAGUE_THREE));
 
   this->selected = 0;
 }
@@ -50,6 +54,18 @@ Action HallOfFame::update(std::vector<Input> inputs)
     case Action::CHANGE_TRACK_RIGHT:
       this->changeTrack(1);
       return Action::NONE;
+      break;
+    case Action::CHANGE_LEAGUE_ONE:
+      this->game_ini_handler->setValue("league", "league", 0);
+      this->load_records();
+      break;
+    case Action::CHANGE_LEAGUE_TWO:
+      this->game_ini_handler->setValue("league", "league", 1);
+      this->load_records();
+      break;
+    case Action::CHANGE_LEAGUE_THREE:
+      this->game_ini_handler->setValue("league", "league", 2);
+      this->load_records();
       break;
     default:
       break;
