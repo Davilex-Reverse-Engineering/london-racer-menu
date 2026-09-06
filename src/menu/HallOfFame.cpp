@@ -4,7 +4,6 @@
 
 #include "../ui/UiButton.hpp"
 #include "../ui/UiRectangle.hpp"
-#include "../ui/UiText.hpp"
 
 HallOfFame::HallOfFame(IniHandler * game_ini_handler, IniHandler * static_ini_handler, Menu last_menu)
 {
@@ -30,8 +29,8 @@ HallOfFame::HallOfFame(IniHandler * game_ini_handler, IniHandler * static_ini_ha
   this->load_records();
 
   // The change track buttons don't work yet
-  // this->ui_elements.push_back(new UiButton(270.0f, 224.0f, 64.0f, 24.0f, "<", Action::CHANGE_TRACK_LEFT));
-  // this->ui_elements.push_back(new UiButton(510.0f, 224.0f, 64.0f, 24.0f, ">", Action::CHANGE_TRACK_RIGHT));
+  this->ui_elements.push_back(new UiButton(270.0f, 224.0f, 64.0f, 24.0f, "<", Action::CHANGE_TRACK_LEFT));
+  this->ui_elements.push_back(new UiButton(510.0f, 224.0f, 64.0f, 24.0f, ">", Action::CHANGE_TRACK_RIGHT));
 
   this->selected = 0;
 }
@@ -71,6 +70,7 @@ void HallOfFame::changeTrack(int change)
   }
   this->game_ini_handler->setValue("etappe", "etappe", etappe);
   this->load_track_image();
+  this->load_records();
 }
 
 void HallOfFame::load_track_image()
@@ -99,27 +99,62 @@ void HallOfFame::load_records()
   int league = this->game_ini_handler->getInt("league", "league");
   std::vector<Record> * lap_records = this->scores_handler.getLapRecords(this->track, league);
   for(size_t i = 0; i < lap_records->size(); i++) {
-    this->ui_elements.push_back(new UiText(235.0f, 323.0f + (18.0f * (float) i), (*lap_records)[i].name, {255, 255, 255, 255}));
+    if (this->laps_names.size() != lap_records->size()) {
+      UiText * text = new UiText(235.0f, 323.0f + (18.0f * (float) i), (*lap_records)[i].name, {255, 255, 255, 255});
+      this->laps_names.push_back(text);
+      this->ui_elements.push_back(text);
+    } else {
+      this->laps_names[i]->setText((*lap_records)[i].name);
+    }
 
     std::string time = ScoresHandler::getTimeString((*lap_records)[i].time_in_ms);
-    this->ui_elements.push_back(new UiText(484.0f, 323.0f + (18.0f * (float) i), time, {255, 255, 255, 255}));
+    if (this->laps_times.size() != lap_records->size()) {
+      UiText * text = new UiText(484.0f, 323.0f + (18.0f * (float) i), time, {255, 255, 255, 255});
+      laps_times.push_back(text);
+      this->ui_elements.push_back(text);
+    } else {
+      this->laps_times[i]->setText(time);
+    }
 
     std::vector<std::string> car_values = this->static_ini_handler->getValues("league" + std::to_string(league), "car" + std::to_string((*lap_records)[i].car));
     std::string car_image_bmp = car_values[2] + ".bmp";
-    this->ui_elements.push_back(new UiImage(384.0f, 320.0f + (18.0f * (float) i), 60.0f, 18.0f, car_image_bmp, true));
+    if (this->laps_car_images.size() != lap_records->size()) {
+      UiImage * image = new UiImage(384.0f, 320.0f + (18.0f * (float) i), 60.0f, 18.0f, car_image_bmp, true);
+      this->laps_car_images.push_back(image);
+      this->ui_elements.push_back(image);
+    } else {
+      this->laps_car_images[i]->setImage(car_image_bmp);
+    }
   }
-
 
   std::vector<Record> * total_records = this->scores_handler.getLapRecords(this->track, league);
   for(size_t i = 0; i < total_records->size(); i++) {
-    this->ui_elements.push_back(new UiText(235.0f, 403.0f + (18.0f * (float) i), (*total_records)[i].name, {255, 255, 255, 255}));
+    if (this->totals_names.size() != total_records->size()) {
+      UiText * text = new UiText(235.0f, 403.0f + (18.0f * (float) i), (*total_records)[i].name, {255, 255, 255, 255});
+      this->totals_names.push_back(text);
+      this->ui_elements.push_back(text);
+    } else {
+      this->totals_names[i]->setText((*total_records)[i].name);
+    }
 
     std::string time = ScoresHandler::getTimeString((*total_records)[i].time_in_ms);
-    this->ui_elements.push_back(new UiText(484.0f, 403.0f + (18.0f * (float) i), time, {255, 255, 255, 255}));
+    if (this->totals_times.size() != total_records->size()) {
+      UiText * text = new UiText(484.0f, 403.0f + (18.0f * (float) i), time, {255, 255, 255, 255});
+      totals_times.push_back(text);
+      this->ui_elements.push_back(text);
+    } else {
+      this->totals_times[i]->setText(time);
+    }
 
     std::vector<std::string> car_values = this->static_ini_handler->getValues("league" + std::to_string(league), "car" + std::to_string((*total_records)[i].car));
     std::string car_image_bmp = car_values[2] + ".bmp";
-    this->ui_elements.push_back(new UiImage(384.0f, 400.0f + (18.0f * (float) i), 60.0f, 18.0f, car_image_bmp, true));
+    if (this->totals_car_images.size() != total_records->size()) {
+      UiImage * image = new UiImage(384.0f, 400.0f + (18.0f * (float) i), 60.0f, 18.0f, car_image_bmp, true);
+      this->totals_car_images.push_back(image);
+      this->ui_elements.push_back(image);
+    } else {
+      this->totals_car_images[i]->setImage(car_image_bmp);
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 #ifndef MENU_HALL_OF_FAME_HPP
 #define MENU_HALL_OF_FAME_HPP
 
-#include <map>
+#include <vector>
 
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
@@ -9,6 +9,7 @@
 #include "../IniHandler.hpp"
 #include "../ScoresHandler.hpp"
 #include "../ui/UiImage.hpp"
+#include "../ui/UiText.hpp"
 
 class HallOfFame : public BaseMenu {
 public:
@@ -28,7 +29,12 @@ private:
     int track_count = 0;
 
     // League, Car, image
-    std::map<int, std::map<int, UiImage>> car_images;
+    std::vector<UiImage*> laps_car_images;
+    std::vector<UiImage*> totals_car_images;
+    std::vector<UiText*> laps_names;
+    std::vector<UiText*> totals_names;
+    std::vector<UiText*> laps_times;
+    std::vector<UiText*> totals_times;
 
     void changeTrack(int change);
     void load_track_image();
