@@ -10,18 +10,31 @@ on:
 jobs:
   Windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
 
     steps:
+      - name: Install dependencies
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-binutils
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-cmake
       - name: Checkout
         uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Build
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Release -A x64 .
-          cmake --build . --config Release
-          cp README.md Release/
-          cp LICENSE.txt Release/
+          mkdir Release && cd Release
+          cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" ..
+          cmake --build .
+          cp ../README.md ./
+          cp ../LICENSE.txt ./
       - name: Publish artifacts
         uses: actions/upload-artifact@v7
         with:
