@@ -20,6 +20,15 @@ set(SDL_TESTS OFF CACHE INTERNAL "" FORCE)
 set(SDL_EXAMPLES OFF CACHE INTERNAL "" FORCE)
 add_subdirectory(vendor/SDL)
 
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "" FORCE)
+set(SDLTTF_INSTALL OFF CACHE INTERNAL "" FORCE)
+set(SDLTTF_VENDORED ON CACHE INTERNAL "" FORCE)
+set(SDLTTF_SAMPLES OFF CACHE INTERNAL "" FORCE)
+set(SDLTTF_FREETYPE ON CACHE INTERNAL "" FORCE)
+set(SDLTTF_HARFBUZZ OFF CACHE INTERNAL "" FORCE)
+set(SDLTTF_PLUTOSVG OFF CACHE INTERNAL "" FORCE)
+add_subdirectory(vendor/SDL_ttf)
+
 add_executable(${PROJECT_NAME} WIN32
   src/main.cpp
   src/InputManager.cpp
@@ -27,6 +36,7 @@ add_executable(${PROJECT_NAME} WIN32
   src/IniHandler.cpp
   src/Utils.cpp
   src/ScoresHandler.cpp
+  src/FontHandler.cpp
   src/ui/UiButton.cpp
   src/ui/UiCheckbox.cpp
   src/ui/UiRectangle.cpp
@@ -48,8 +58,12 @@ add_executable(${PROJECT_NAME} WIN32
   src/menu/Results.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3-static SDL3_ttf::SDL3_ttf-static)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
   SUFFIX ".exe"
 )
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources ${CMAKE_CURRENT_BINARY_DIR}/resources)

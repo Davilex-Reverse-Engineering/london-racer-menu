@@ -9,6 +9,7 @@
 #include "../ui/UiElement.hpp"
 #include "../Action.hpp"
 #include "../Input.hpp"
+#include "../FontHandler.hpp"
 
 enum class Menu {
   RACE_MENU,
@@ -30,6 +31,9 @@ enum class Menu {
 class BaseMenu {
 public:
     virtual ~BaseMenu() {
+      if (this->title_texture) {
+        SDL_DestroyTexture(this->title_texture);
+      }
       for(UiElement * element : ui_elements) {
         if (element) {
           delete element;
@@ -42,8 +46,11 @@ public:
     };
 
     virtual void draw(SDL_Renderer *renderer) {
-      SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-      SDL_RenderDebugText(renderer, 216.0f, 35.0f, title.c_str());
+      if (!this->title_texture) {
+        this->title_texture = FontHandler::getInstance()->getTexture(renderer, this->title, FontType::TITLE);
+        SDL_GetTextureSize(this->title_texture, &this->title_rect.w, &this->title_rect.h);
+      }
+      SDL_RenderTexture(renderer, this->title_texture, NULL, &this->title_rect);
       for (size_t i = 0; i < ui_elements.size(); i++) {
         ui_elements[i]->draw(renderer, i == selected);
       }
@@ -53,6 +60,8 @@ protected:
   std::vector<UiElement*> ui_elements;
   size_t selected = 0;
   std::string title = "";
+  SDL_Texture * title_texture = NULL;
+  SDL_FRect title_rect = {216.0f, 35.0f, 0.0f, 0.0f};
 
   Action processButtonInput(Input input) {
     switch(input.event) {

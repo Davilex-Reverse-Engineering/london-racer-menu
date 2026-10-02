@@ -16,6 +16,8 @@ public:
 
 private:
   std::string text_string = "";
+  SDL_Texture * text_texture = NULL;
+  SDL_FRect text_rect;
 };
 
 #endif // UI_BUTTON_HPP
