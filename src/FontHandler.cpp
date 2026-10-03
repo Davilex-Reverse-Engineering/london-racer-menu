@@ -23,14 +23,15 @@ bool FontHandler::load()
     return false;
   }
 
-  this->fonts[FontType::REGULAR] = TTF_OpenFont(sans_file_name.c_str(), 12);
+  std::string sans_path = Utils::getFullPath(sans_file_name);
+  this->fonts[FontType::REGULAR] = TTF_OpenFont(sans_path.c_str(), 12);
   if (!this->fonts[FontType::REGULAR]) {
-    SDL_Log("Could not load %s: %s", sans_file_name.c_str(), SDL_GetError());
+    SDL_Log("Could not load %s: %s", sans_path.c_str(), SDL_GetError());
     return false;
   }
-  this->fonts[FontType::TITLE] = TTF_OpenFont(sans_file_name.c_str(), 24);
+  this->fonts[FontType::TITLE] = TTF_OpenFont(sans_path.c_str(), 24);
   if (!this->fonts[FontType::TITLE]) {
-    SDL_Log("Could not load %s: %s", sans_file_name.c_str(), SDL_GetError());
+    SDL_Log("Could not load %s: %s", sans_path.c_str(), SDL_GetError());
     return false;
   }
 

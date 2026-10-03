@@ -2,6 +2,7 @@
 
 #include <typeinfo>
 
+#include "ImageHandler.hpp"
 #include "Utils.hpp"
 #include "menu/RaceMenu.hpp"
 #include "menu/TournamentMenu.hpp"
@@ -55,9 +56,6 @@ MenuManager::MenuManager(IniHandler * menu_ini_handler, IniHandler * game_ini_ha
 
 MenuManager::~MenuManager()
 {
-  if (this->background) {
-    SDL_DestroyTexture(this->background);
-  }
   if (this->menu) {
     delete this->menu;
   }
@@ -176,7 +174,7 @@ Action MenuManager::update(std::vector<Input> inputs)
 void MenuManager::draw(SDL_Renderer * renderer) {
   if (!this->background && !background_loaded) {
     std::string file_name = this->static_ini_handler->getValue("bitmaps", "0") + ".bmp";
-    this->background = Utils::createTexture(renderer, file_name);
+    this->background = ImageHandler::getInstance()->getTexture(renderer, file_name);
     background_loaded = true;
   }
   if (this->background) {

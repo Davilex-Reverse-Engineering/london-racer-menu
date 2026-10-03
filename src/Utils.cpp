@@ -5,12 +5,21 @@
 #include <filesystem>
 
 std::string Utils::getFullPath(const std::string &file_name) {
+  std::filesystem::path file_path = file_name;
+  if (file_path.is_absolute()) {
+    return file_path.generic_string();
+  }
+
   std::filesystem::path working_directory; 
   const char * sdl_base_directory = SDL_GetBasePath();
   if (sdl_base_directory) {
     working_directory = std::filesystem::path(sdl_base_directory);
   } else {
     working_directory = std::filesystem::path(".");
+  }
+
+  if (std::filesystem::exists(working_directory / file_path)) {
+    return (working_directory / file_path).generic_string();
   }
 
   std::string current_file_name = "";
@@ -29,25 +38,10 @@ std::string Utils::getFullPath(const std::string &file_name) {
       }
     }
     if (files_match) {
-        return (working_directory / current_file_name).generic_string();
+      return (working_directory / current_file_name).generic_string();
     }
   }
 
   SDL_Log("Could not find file %s", file_name.c_str());
   return file_name;
-}
-
-SDL_Texture * Utils::createTexture(SDL_Renderer *renderer, const std::string &file_name, bool use_transparency) {
-  std::string full_path = Utils::getFullPath(file_name);
-  SDL_Surface * surface = SDL_LoadBMP(full_path.c_str());
-  if (surface) {
-    if (use_transparency) {
-        uint32_t colorKey = SDL_MapRGB(SDL_GetPixelFormatDetails(surface->format), NULL, 0, 0, 0);
-        SDL_SetSurfaceColorKey(surface, true, colorKey);
-    }
-    SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_DestroySurface(surface);
-    return texture;
-  }
-  return NULL;
 }
