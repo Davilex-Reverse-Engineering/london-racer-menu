@@ -23,15 +23,17 @@ UiButton::~UiButton()
 
 void UiButton::draw(SDL_Renderer *renderer, bool selected)
 {
-  if (!this->button_texture) {
-    this->button_texture = ImageHandler::getInstance()->getTexture(renderer, "resources/images/button.png");
-  }
   if (selected) {
-    SDL_SetRenderDrawColor(renderer, 71, 110, 23, 255);
+    if (!this->button_selected_texture) {
+      this->button_selected_texture = ImageHandler::getInstance()->getTexture(renderer, "resources/images/button_selected.png");
+    }
+    SDL_RenderTexture(renderer, this->button_selected_texture, NULL, &this->rect);
   } else {
-    SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
+    if (!this->button_texture) {
+      this->button_texture = ImageHandler::getInstance()->getTexture(renderer, "resources/images/button.png");
+    }
+    SDL_RenderTexture(renderer, this->button_texture, NULL, &this->rect);
   }
-  SDL_RenderTexture(renderer, this->button_texture, NULL, &this->rect);
   if (!this->text_texture) {
     this->text_texture = FontHandler::getInstance()->getTexture(renderer, this->text_string, FontType::REGULAR);
     SDL_GetTextureSize(this->text_texture, &this->text_rect.w, &this->text_rect.h);

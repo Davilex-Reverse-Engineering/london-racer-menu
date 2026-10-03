@@ -19,6 +19,7 @@ private:
   SDL_Texture * text_texture = NULL;
   SDL_FRect text_rect;
   SDL_Texture * button_texture = NULL;
+  SDL_Texture * button_selected_texture = NULL;
 };
 
 #endif // UI_BUTTON_HPP
