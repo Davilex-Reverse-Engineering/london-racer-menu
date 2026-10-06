@@ -1,11 +1,6 @@
 name: Build
 
-on:
-  push:
-    branches: [main]
-    tags:
-      - v**
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   Windows:
@@ -18,16 +13,20 @@ jobs:
           submodules: recursive
       - name: Build
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Release -A x64 .
-          cmake --build . --config Release
+          cmake -B Release -DCMAKE_BUILD_TYPE=Release -A x64 .
+          cmake --build Release --config Release
           cp README.md Release/
           cp LICENSE.txt Release/
+          cp Release/Release/menu.exe Release/
       - name: Publish artifacts
         uses: actions/upload-artifact@v7
         with:
           name: menu-windows
           path: |
-            Release
+            Release/README.md
+            Release/LICENSE.txt
+            Release/menu.exe
+            Release/resources/
 
   Linux:
     runs-on: ubuntu-latest
@@ -43,14 +42,16 @@ jobs:
           submodules: recursive
       - name: Build
         run: |
-          mkdir Release && cd Release
-          cmake -DCMAKE_BUILD_TYPE=Release -DSDL_X11=OFF ..
-          cmake --build .
-          cp ../README.md ./
-          cp ../LICENSE.txt ./
+          cmake -B Release -DCMAKE_BUILD_TYPE=Release -DSDL_X11=OFF .
+          cmake --build Release
+          cp README.md Release/
+          cp LICENSE.txt Release/
       - name: Publish artifacts
         uses: actions/upload-artifact@v7
         with:
           name: menu-linux
           path: |
-            Release
+            Release/README.md
+            Release/LICENSE.txt
+            Release/menu.exe
+            Release/resources/
