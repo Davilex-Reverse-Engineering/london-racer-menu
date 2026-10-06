@@ -14,6 +14,7 @@ cmake --build . --config Release
 
 The following libraries were used to make this:
 - SDL
+- SDL_ttf
 
 ### SDL License
 
