@@ -260,8 +260,8 @@ enum class ChunkPrimaryType {
   avih,
   strh,
   strf,
-  indx
-
+  strn,
+  indx,
 };
 
 enum class ChunkSecondaryType {
@@ -272,7 +272,6 @@ enum class ChunkSecondaryType {
   strl,
   movi,
 };
-
 
 typedef struct {
   ChunkPrimaryType primary_type;
@@ -306,6 +305,8 @@ ChunkHead readChunkHead(SDL_IOStream * stream) {
     head.primary_type = ChunkPrimaryType::strh;
   } else if (pt[0] == 's' && pt[1] == 't' && pt[2] == 'r' && pt[3] == 'f') {
     head.primary_type = ChunkPrimaryType::strf;
+  } else if (pt[0] == 's' && pt[1] == 't' && pt[2] == 'r' && pt[3] == 'n') {
+    head.primary_type = ChunkPrimaryType::strn;
   } else if (pt[0] == 'i' && pt[1] == 'n' && pt[2] == 'd' && pt[3] == 'x') {
     head.primary_type = ChunkPrimaryType::indx;
   } else {
@@ -320,7 +321,7 @@ ChunkHead readChunkHead(SDL_IOStream * stream) {
     return head;
   }
 
-  if(!SDL_ReadU32LE(stream, &head.size)) {
+  if(!SDL_ReadU32LE(stream, &head.size) || head.size < 1) {
     SDL_Log("Could not read size of chunk head");
     return head;
   }
@@ -371,6 +372,7 @@ ChunkHead readChunkHead(SDL_IOStream * stream) {
       SDL_Log("Unsupported secondary chunk head type for LIST: %s", output);
       return head;
     }
+    head.size -= 4;
   }
 
   return head;
@@ -445,6 +447,20 @@ SDL_Texture * VideoHandler::getTexture(SDL_Renderer * renderer, const std::strin
     free(avi_header);
     return nullptr;
   }
+  if (stream_header->fccType[0] != 'v' || stream_header->fccType[1] != 'i' || stream_header->fccType[2] != 'd' || stream_header->fccType[3] != 's') {
+    SDL_Log("Expected vids type, failing");
+    SDL_CloseIO(stream);
+    free(avi_header);
+    free(stream_header);
+    return nullptr;
+  }
+  if (stream_header->fccHandler[0] != 'D' || stream_header->fccHandler[1] != 'I' || stream_header->fccHandler[2] != 'B' || stream_header->fccHandler[3] != ' ') {
+    SDL_Log("Only DIB handler type is supported, failing");
+    SDL_CloseIO(stream);
+    free(avi_header);
+    free(stream_header);
+    return nullptr;
+  }
 
   ChunkHead strf_head = readChunkHead(stream);
   if (strf_head.primary_type != ChunkPrimaryType::strf) {
@@ -455,7 +471,60 @@ SDL_Texture * VideoHandler::getTexture(SDL_Renderer * renderer, const std::strin
     return nullptr;
   }
 
+  void * bitmap_header = malloc(strf_head.size);
+  if(!SDL_ReadIO(stream, bitmap_header, strf_head.size)) {
+    SDL_Log("Could not read bitmap header from strf, failing");
+    SDL_CloseIO(stream);
+    free(avi_header);
+    free(stream_header);
+    return nullptr;
+  }
+
+  SDL_Log("Searching for chunk head of idx1");
+  ChunkHead next_head = readChunkHead(stream);
+  while (next_head.primary_type != ChunkPrimaryType::idx1 && SDL_TellIO(stream) != file_size) {
+    SDL_Log("Found chunk head with types %i,%i", next_head.primary_type, next_head.secondary_type);
+    if (next_head.size < 1) {
+      SDL_Log("Failed to read size of chunk, failing");
+      break;
+    }
+    SDL_SeekIO(stream, (int64_t) next_head.size, SDL_IO_SEEK_CUR);
+    next_head = readChunkHead(stream);
+  }
+  if (next_head.primary_type != ChunkPrimaryType::idx1) {
+    SDL_Log("Could not find idx1 head, failing");
+    SDL_CloseIO(stream);
+    free(avi_header);
+    free(stream_header);
+    free(bitmap_header);
+    return nullptr;
+  }
+
+  SDL_Log("Found idx1");
+  for(uint32_t i = 0; i < stream_header->length; i++) {
+    char idx_type[4];
+    SDL_ReadIO(stream, idx_type, 4);
+    if (idx_type[2] != 'd') {
+      i--;
+      continue;
+    }
+    uint32_t frame_size = 0;
+    SDL_ReadU32LE(stream, &frame_size);  // This still needs error checking
+    uint32_t offset = 0;
+    SDL_ReadU32LE(stream, &offset);  // This still needs error checking
+    SDL_Log("For frame %u offset found is %u, size is %u", i, offset, frame_size);
+    int64_t current_offset = SDL_TellIO(stream);
+    SDL_SeekIO(stream, (int64_t) offset, SDL_IO_SEEK_SET);
+    void * frame_data = calloc(1, frame_size);
+    SDL_ReadIO(stream, frame_data, frame_size);
+    FILE * fd = fopen("output.bmp", "wb");
+    fwrite(frame_data, 1, strf_head.size + frame_size, fd);
+    fclose(fd);
+    SDL_SeekIO(stream, current_offset, SDL_IO_SEEK_SET);
+  }
+
   free(avi_header);
   free(stream_header);
+  free(bitmap_header);
   return nullptr;
 }

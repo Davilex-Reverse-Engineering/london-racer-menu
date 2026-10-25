@@ -63,6 +63,7 @@ int main(int argc, char** argv) {
   }
 
   VideoHandler::getInstance()->getTexture(renderer, "Aston_1.avi");
+  VideoHandler::getInstance()->getTexture(renderer, "Lotus_1.avi");
 
   InputManager input_manager = InputManager();
   MenuManager menu_manager = MenuManager(&menu_ini_handler, &game_ini_handler, &static_ini_handler);
