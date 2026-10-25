@@ -413,12 +413,19 @@ SDL_Texture * VideoHandler::getTexture(SDL_Renderer * renderer, const std::strin
     SDL_CloseIO(stream);
     return nullptr;
   }
+  if (avi_header->streams != 1) {
+    SDL_Log("Only AVI files with a single stream are supported at the moment");
+    SDL_CloseIO(stream);
+    free(avi_header);
+    return nullptr;
+  }
 
   // Here there could be a different list I think
   ChunkHead list_strl_head = readChunkHead(stream);
   if (list_strl_head.primary_type != ChunkPrimaryType::LIST || list_strl_head.secondary_type != ChunkSecondaryType::strl) {
     SDL_Log("Expected LIST strl here, failing");
     SDL_CloseIO(stream);
+    free(avi_header);
     return nullptr;
   }
 
@@ -426,14 +433,16 @@ SDL_Texture * VideoHandler::getTexture(SDL_Renderer * renderer, const std::strin
   if (strh_head.primary_type != ChunkPrimaryType::strh ) {
     SDL_Log("Expected strh here, failing");
     SDL_CloseIO(stream);
+    free(avi_header);
     return nullptr;
   }
   SDL_Log("strh_size: %i", strh_head.size);
 
   StreamHeader * stream_header = readStreamHeader(stream, strh_head.size);
-  if(!avi_header) {
+  if(!stream_header) {
     SDL_Log("Could not read stream header");
     SDL_CloseIO(stream);
+    free(avi_header);
     return nullptr;
   }
 
@@ -441,8 +450,12 @@ SDL_Texture * VideoHandler::getTexture(SDL_Renderer * renderer, const std::strin
   if (strf_head.primary_type != ChunkPrimaryType::strf) {
     SDL_Log("Expected strf here, failing");
     SDL_CloseIO(stream);
+    free(avi_header);
+    free(stream_header);
     return nullptr;
   }
 
+  free(avi_header);
+  free(stream_header);
   return nullptr;
 }
