@@ -16,22 +16,365 @@ VideoHandler * VideoHandler::getInstance()
   return &instance;
 }
 
-typedef struct __attribute__((packed)) {
+#define AVI_HEADER_SIZE 56
+#define STREAM_HEADER_SIZE 56
+
+typedef struct {
+  uint32_t microSecPerFrame;
+  uint32_t maxBytesPerSec;
+  uint32_t paddingGranularity;
+  uint32_t flags;
+  uint32_t totalFrames;
+  uint32_t initialFrames;
+  uint32_t streams;
+  uint32_t suggestedBufferSize;
+  uint32_t width;
+  uint32_t height;
+} AviHeader;
+
+typedef struct {
   char fccType[4];
   char fccHandler[4];
-  uint32_t dwFlags;
-  uint16_t wPriority;
-  uint16_t wLanguage;
-  uint32_t dwInitialFrames;
-  uint32_t dwScale;
-  uint32_t dwRate;
-  uint32_t dwStart;
-  uint32_t dwLength;
-  uint32_t dwSuggestedBufferSize;
-  uint32_t dwQuality;
-  uint32_t dwSampleSize;
+  uint32_t flags;
+  uint16_t priority;
+  uint16_t language;
+  uint32_t initialFrames;
+  uint32_t scale;
+  uint32_t rate;
+  uint32_t start;
+  uint32_t length;
+  uint32_t suggestedBufferSize;
+  uint32_t quality;
+  uint32_t sampleSize;
   uint16_t rcFrame[4];
-} AVIStreamHeader;
+} StreamHeader;
+
+
+AviHeader * readAviHeader(SDL_IOStream * stream, uint32_t size) {
+  if (size != AVI_HEADER_SIZE) {
+    SDL_Log("AVI Header size %i is unsupported, expected %i", size, AVI_HEADER_SIZE);
+    return nullptr;
+  }
+
+  AviHeader * header = (AviHeader *) calloc(1, sizeof(AviHeader));
+
+  if(!SDL_ReadU32LE(stream, &header->microSecPerFrame)) {
+    SDL_Log("Could not process avi header, microSecPerFrame could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("microSecPerFrame: %i", header->microSecPerFrame);
+
+  if(!SDL_ReadU32LE(stream, &header->maxBytesPerSec)) {
+    SDL_Log("Could not process avi header, maxBytesPerSec could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("maxBytesPerSec: %i", header->maxBytesPerSec);
+
+  if(!SDL_ReadU32LE(stream, &header->paddingGranularity)) {
+    SDL_Log("Could not process avi header, paddingGranularity could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("paddingGranularity: %i", header->paddingGranularity);
+
+  if(!SDL_ReadU32LE(stream, &header->flags)) {
+    SDL_Log("Could not process avi header, flags could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("flags: %i", header->flags);
+
+  if(!SDL_ReadU32LE(stream, &header->totalFrames)) {
+    SDL_Log("Could not process avi header, totalFrames could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("totalFrames: %i", header->totalFrames);
+
+  if(!SDL_ReadU32LE(stream, &header->initialFrames)) {
+    SDL_Log("Could not process avi header, initialFrames could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("initialFrames: %i", header->initialFrames);
+
+  if(!SDL_ReadU32LE(stream, &header->streams)) {
+    SDL_Log("Could not process avi header, streams could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("streams: %i", header->streams);
+
+  if(!SDL_ReadU32LE(stream, &header->suggestedBufferSize)) {
+    SDL_Log("Could not process avi header, suggestedBufferSize could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("suggestedBufferSize: %i", header->suggestedBufferSize);
+
+  if(!SDL_ReadU32LE(stream, &header->width)) {
+    SDL_Log("Could not process avi header, width could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("width: %i", header->width);
+
+  if(!SDL_ReadU32LE(stream, &header->height)) {
+    SDL_Log("Could not process avi header, height could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("height: %i", header->height);
+
+  // Here are some reserved bytes that are not used and should always be 0
+  for(size_t i = 0; i < 4; i++) {
+    uint32_t reserved_byte = 0;
+    if(!SDL_ReadU32LE(stream, &reserved_byte) || reserved_byte != 0) {
+      SDL_Log("Could not process avi header, reserved byte %lu (%u) could not be read: %s", i, reserved_byte, SDL_GetError());
+      free(header);
+      return nullptr;
+    }
+    SDL_Log("reserved byte: %u", reserved_byte);
+  }
+
+  return header;
+}
+
+StreamHeader * readStreamHeader(SDL_IOStream * stream, uint32_t size) {
+  if (size != STREAM_HEADER_SIZE) {
+    SDL_Log("Stream Header size %i is unsupported, expected %i", size, STREAM_HEADER_SIZE);
+    return nullptr;
+  }
+
+  StreamHeader * header = (StreamHeader *) calloc(1, sizeof(StreamHeader));
+
+  if(!SDL_ReadIO(stream, (void *) &header->fccType, 4)) {
+    SDL_Log("Could not process stream header, fccType could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+
+  if(!SDL_ReadIO(stream, (void *) &header->fccHandler, 4)) {
+    SDL_Log("Could not process stream header, fccHandler could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+
+  if(!SDL_ReadU32LE(stream, &header->flags)) {
+    SDL_Log("Could not process stream header, flags could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("flags: %i", header->flags);
+
+  if(!SDL_ReadU16LE(stream, &header->priority)) {
+    SDL_Log("Could not process stream header, priority could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("priority: %i", header->priority);
+
+  if(!SDL_ReadU16LE(stream, &header->language)) {
+    SDL_Log("Could not process stream header, language could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("language: %i", header->language);
+
+  if(!SDL_ReadU32LE(stream, &header->initialFrames)) {
+    SDL_Log("Could not process stream header, initialFrames could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("initialFrames: %i", header->initialFrames);
+
+  if(!SDL_ReadU32LE(stream, &header->scale)) {
+    SDL_Log("Could not process stream header, scale could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("scale: %i", header->scale);
+
+  if(!SDL_ReadU32LE(stream, &header->rate)) {
+    SDL_Log("Could not process stream header, rate could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("rate: %i", header->rate);
+
+  if(!SDL_ReadU32LE(stream, &header->start)) {
+    SDL_Log("Could not process stream header, start could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("start: %i", header->start);
+
+  if(!SDL_ReadU32LE(stream, &header->length)) {
+    SDL_Log("Could not process stream header, length could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("length: %i", header->length);
+
+  if(!SDL_ReadU32LE(stream, &header->suggestedBufferSize)) {
+    SDL_Log("Could not process stream header, suggestedBufferSize could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("suggestedBufferSize: %i", header->suggestedBufferSize);
+
+  if(!SDL_ReadU32LE(stream, &header->quality)) {
+    SDL_Log("Could not process stream header, quality could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("quality: %i", header->quality);
+
+  if(!SDL_ReadU32LE(stream, &header->sampleSize)) {
+    SDL_Log("Could not process stream header, sampleSize could not be read: %s", SDL_GetError());
+    free(header);
+    return nullptr;
+  }
+  SDL_Log("sampleSize: %i", header->sampleSize);
+
+  for(size_t i = 0; i < 4; i++) {
+    if(!SDL_ReadU16LE(stream, &header->rcFrame[i])) {
+      SDL_Log("Could not process stream header, rcFrame %lu could not be read: %s", i, SDL_GetError());
+      free(header);
+      return nullptr;
+    }
+    SDL_Log("rcFrame: %u", header->rcFrame[i]);
+  }
+
+  return header;
+}
+
+enum class ChunkPrimaryType {
+  NONE,
+  RIFF,
+  LIST,
+  JUNK,
+  idx1,
+  avih,
+  strh,
+  strf,
+  indx
+
+};
+
+enum class ChunkSecondaryType {
+  NONE,
+  AVI,
+  AVIX,
+  hdrl,
+  strl,
+  movi,
+};
+
+
+typedef struct {
+  ChunkPrimaryType primary_type;
+  uint32_t size;
+  ChunkSecondaryType secondary_type;
+} ChunkHead;
+
+ChunkHead readChunkHead(SDL_IOStream * stream) {
+  ChunkHead head;
+  head.primary_type = ChunkPrimaryType::NONE;
+  head.size = 0;
+  head.secondary_type = ChunkSecondaryType::NONE;
+
+  char pt[4];
+  if(!SDL_ReadIO(stream, &pt, 4)) {
+    SDL_Log("Could not read primary type string of chunk head");
+    return head;
+  }
+
+  if (pt[0] == 'R' && pt[1] == 'I' && pt[2] == 'F' && pt[3] == 'F') {
+    head.primary_type = ChunkPrimaryType::RIFF;
+  } else if (pt[0] == 'L' && pt[1] == 'I' && pt[2] == 'S' && pt[3] == 'T') {
+    head.primary_type = ChunkPrimaryType::LIST;
+  } else if (pt[0] == 'J' && pt[1] == 'U' && pt[2] == 'N' && pt[3] == 'K') {
+    head.primary_type = ChunkPrimaryType::JUNK;
+  } else if (pt[0] == 'i' && pt[1] == 'd' && pt[2] == 'x' && pt[3] == '1') {
+    head.primary_type = ChunkPrimaryType::idx1;
+  } else if (pt[0] == 'a' && pt[1] == 'v' && pt[2] == 'i' && pt[3] == 'h') {
+    head.primary_type = ChunkPrimaryType::avih;
+  } else if (pt[0] == 's' && pt[1] == 't' && pt[2] == 'r' && pt[3] == 'h') {
+    head.primary_type = ChunkPrimaryType::strh;
+  } else if (pt[0] == 's' && pt[1] == 't' && pt[2] == 'r' && pt[3] == 'f') {
+    head.primary_type = ChunkPrimaryType::strf;
+  } else if (pt[0] == 'i' && pt[1] == 'n' && pt[2] == 'd' && pt[3] == 'x') {
+    head.primary_type = ChunkPrimaryType::indx;
+  } else {
+    char output[5] = {
+      pt[0],
+      pt[1],
+      pt[2],
+      pt[3],
+      '\0'
+    };
+    SDL_Log("Unsupported chunk head type %s", output);
+    return head;
+  }
+
+  if(!SDL_ReadU32LE(stream, &head.size)) {
+    SDL_Log("Could not read size of chunk head");
+    return head;
+  }
+
+  if (head.primary_type == ChunkPrimaryType::RIFF) {
+    char st[4];
+     if(!SDL_ReadIO(stream, &st, 4)) {
+      SDL_Log("Could not read secondary type string of chunk head type RIFF");
+      return head;
+    }
+    if (st[0] == 'A' && st[1] == 'V' && st[2] == 'I') {
+      if (st[3] == 'X') {
+        head.secondary_type = ChunkSecondaryType::AVIX;
+      } else if (st[3] == ' ') {
+        head.secondary_type = ChunkSecondaryType::AVI;
+      } else {
+        char output[5] = {
+          st[0],
+          st[1],
+          st[2],
+          st[3],
+          '\0'
+        };
+        SDL_Log("Unsupported secondary chunk head type for AVI: %s", output);
+        return head;
+      }
+    }
+  } else if (head.primary_type == ChunkPrimaryType::LIST) {
+    char st[4];
+     if(!SDL_ReadIO(stream, &st, 4)) {
+      SDL_Log("Could not read secondary type string of chunk head type LIST");
+      return head;
+    }
+    if (st[0] == 'h' && st[1] == 'd' && st[2] == 'r' && st[3] == 'l') {
+        head.secondary_type = ChunkSecondaryType::hdrl;
+    } else if (st[0] == 's' && st[1] == 't' && st[2] == 'r' && st[3] == 'l') {
+        head.secondary_type = ChunkSecondaryType::strl;
+    } else if (st[0] == 'm' && st[1] == 'o' && st[2] == 'v' && st[3] == 'i') {
+        head.secondary_type = ChunkSecondaryType::movi;
+    } else {
+      char output[5] = {
+        st[0],
+        st[1],
+        st[2],
+        st[3],
+        '\0'
+      };
+      SDL_Log("Unsupported secondary chunk head type for LIST: %s", output);
+      return head;
+    }
+  }
+
+  return head;
+}
 
 SDL_Texture * VideoHandler::getTexture(SDL_Renderer * renderer, const std::string &file_path)
 {
@@ -40,222 +383,66 @@ SDL_Texture * VideoHandler::getTexture(SDL_Renderer * renderer, const std::strin
     SDL_Log("Could not load file Scores.dat as stream");
     return nullptr;
   }
+  int64_t file_size = SDL_GetIOSize(stream);
+  SDL_Log("Actual size of the stream %li", file_size);
 
-  char RIFF[5];
-  SDL_ReadIO(stream, RIFF, 4);
-  RIFF[4] = '\0';
-  SDL_Log("RIFF: %s", RIFF);
-  if (RIFF[0] != 'R' || RIFF[1] != 'I' || RIFF[2] != 'F' || RIFF[3] != 'F') {
-    SDL_Log("Expected RIFF header was %s", RIFF);
+  ChunkHead riff_head = readChunkHead(stream);
+  if (riff_head.primary_type != ChunkPrimaryType::RIFF || riff_head.secondary_type != ChunkSecondaryType::AVI) {
+    SDL_Log("Not a valid AVI file, failing");
     SDL_CloseIO(stream);
     return nullptr;
   }
 
-  uint32_t size = 0;
-  if(!SDL_ReadU32LE(stream, &size)) {
-    SDL_Log("Could not read size");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("size: %i", size);
-
-  char AVI[5];
-  SDL_ReadIO(stream, AVI, 4);
-  AVI[4] = '\0';
-  SDL_Log("AVI: %s", AVI);
-  if (AVI[0] != 'A' || AVI[1] != 'V' || AVI[2] != 'I' || AVI[3] != ' ') {
-    SDL_Log("Expected AVI header was %s", AVI);
+  ChunkHead list_hdrl_head = readChunkHead(stream);
+  if (list_hdrl_head.primary_type != ChunkPrimaryType::LIST || list_hdrl_head.secondary_type != ChunkSecondaryType::hdrl) {
+    SDL_Log("Expected hdrl header in file, failing");
     SDL_CloseIO(stream);
     return nullptr;
   }
 
-  char LIST[5];
-  SDL_ReadIO(stream, LIST, 4);
-  LIST[4] = '\0';
-  SDL_Log("LIST: %s", LIST);
-  if (LIST[0] != 'L' || LIST[1] != 'I' || LIST[2] != 'S' || LIST[3] != 'T') {
-    SDL_Log("Expected LIST header was %s", LIST);
+  ChunkHead avih_head = readChunkHead(stream);
+  if (avih_head.primary_type != ChunkPrimaryType::avih) {
+    SDL_Log("Expected avih head, failing");
     SDL_CloseIO(stream);
     return nullptr;
   }
 
-  uint32_t hdrl_list_size = 0;
-  if(!SDL_ReadU32LE(stream, &hdrl_list_size)) {
-    SDL_Log("Could not read hdrl_list_size");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("hdrl_list_size: %i", hdrl_list_size);
-
-  char hdrl[5];
-  SDL_ReadIO(stream, hdrl, 4);
-  hdrl[4] = '\0';
-  SDL_Log("hdrl: %s", hdrl);
-  if (hdrl[0] != 'h' || hdrl[1] != 'd' || hdrl[2] != 'r' || hdrl[3] != 'l') {
-    SDL_Log("Expected hdrl header was %s", hdrl);
+  AviHeader * avi_header = readAviHeader(stream, avih_head.size);
+  if(!avi_header) {
+    SDL_Log("Could not read AVI header");
     SDL_CloseIO(stream);
     return nullptr;
   }
 
-  char avih[5];
-  SDL_ReadIO(stream, avih, 4);
-  avih[4] = '\0';
-  SDL_Log("avih: %s", avih);
-  if (avih[0] != 'a' || avih[1] != 'v' || avih[2] != 'i' || avih[3] != 'h') {
-    SDL_Log("Expected avih header was %s", avih);
+  // Here there could be a different list I think
+  ChunkHead list_strl_head = readChunkHead(stream);
+  if (list_strl_head.primary_type != ChunkPrimaryType::LIST || list_strl_head.secondary_type != ChunkSecondaryType::strl) {
+    SDL_Log("Expected LIST strl here, failing");
     SDL_CloseIO(stream);
     return nullptr;
   }
 
-  uint32_t avih_size = 0;
-  if(!SDL_ReadU32LE(stream, &avih_size)) {
-    SDL_Log("Could not read avih_size");
+  ChunkHead strh_head = readChunkHead(stream);
+  if (strh_head.primary_type != ChunkPrimaryType::strh ) {
+    SDL_Log("Expected strh here, failing");
     SDL_CloseIO(stream);
     return nullptr;
   }
-  SDL_Log("avih_size: %i", avih_size);
+  SDL_Log("strh_size: %i", strh_head.size);
 
-  uint32_t dwMicroSecPerFrame = 0;
-  if(!SDL_ReadU32LE(stream, &dwMicroSecPerFrame)) {
-    SDL_Log("Could not read readdwMicroSecPerFrame");
+  StreamHeader * stream_header = readStreamHeader(stream, strh_head.size);
+  if(!avi_header) {
+    SDL_Log("Could not read stream header");
     SDL_CloseIO(stream);
     return nullptr;
   }
-  SDL_Log("dwMicroSecPerFrame: %i", dwMicroSecPerFrame);
 
-  uint32_t dwMaxBytesPerSec = 0;
-  if(!SDL_ReadU32LE(stream, &dwMaxBytesPerSec)) {
-    SDL_Log("Could not read dwMaxBytesPerSec");
+  ChunkHead strf_head = readChunkHead(stream);
+  if (strf_head.primary_type != ChunkPrimaryType::strf) {
+    SDL_Log("Expected strf here, failing");
     SDL_CloseIO(stream);
     return nullptr;
   }
-  SDL_Log("dwMaxBytesPerSec: %i", dwMaxBytesPerSec);
 
-  uint32_t dwPaddingGranularity = 0;
-  if(!SDL_ReadU32LE(stream, &dwPaddingGranularity)) {
-    SDL_Log("Could not read dwPaddingGranularity");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("dwPaddingGranularity: %i", dwPaddingGranularity);
-
-  uint32_t dwFlags = 0;
-  if(!SDL_ReadU32LE(stream, &dwFlags)) {
-    SDL_Log("Could not read dwFlags");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("dwFlags: %i", dwFlags);
-
-  uint32_t dwTotalFrames = 0;
-  if(!SDL_ReadU32LE(stream, &dwTotalFrames)) {
-    SDL_Log("Could not read dwTotalFrames");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("dwTotalFrames: %i", dwTotalFrames);
-
-  uint32_t dwInitialFrames = 0;
-  if(!SDL_ReadU32LE(stream, &dwInitialFrames)) {
-    SDL_Log("Could not read dwInitialFrames");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("dwInitialFrames: %i", dwInitialFrames);
-
-  uint32_t dwStreams = 0;
-  if(!SDL_ReadU32LE(stream, &dwStreams)) {
-    SDL_Log("Could not read dwStreams");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("dwStreams: %i", dwStreams);
-
-  uint32_t dwSuggestedBufferSize = 0;
-  if(!SDL_ReadU32LE(stream, &dwSuggestedBufferSize)) {
-    SDL_Log("Could not read dwSuggestedBufferSize");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("dwSuggestedBufferSize: %i", dwSuggestedBufferSize);
-
-  uint32_t dwWidth = 0;
-  if(!SDL_ReadU32LE(stream, &dwWidth)) {
-    SDL_Log("Could not read dwWidth");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("dwWidth: %i", dwWidth);
-
-  uint32_t dwHeight = 0;
-  if(!SDL_ReadU32LE(stream, &dwHeight)) {
-    SDL_Log("Could not read dwHeight");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("dwHeight: %i", dwHeight);
-
-  // Here are some reserved bytes that are not used
-  for(size_t i = 0; i < 4; i++) {
-    uint32_t dwReserved = 0;
-    if(!SDL_ReadU32LE(stream, &dwReserved) || dwReserved != 0) {
-      SDL_Log("Could not read dwReserved %u", dwReserved);
-      SDL_CloseIO(stream);
-      return nullptr;
-    }
-    SDL_Log("dwReserved: %i", dwReserved);
-  }
-
-
-  
-  char LIST2[5];
-  SDL_ReadIO(stream, LIST2, 4);
-  LIST2[4] = '\0';
-  SDL_Log("LIST2: %s", LIST2);
-
-  uint32_t LIST2_size = 0;
-  if(!SDL_ReadU32LE(stream, &LIST2_size)) {
-    SDL_Log("Could not read LIST2_size");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("LIST2_size: %i", LIST2_size);
-
-  char strl[5];
-  SDL_ReadIO(stream, strl, 4);
-  strl[4] = '\0';
-  SDL_Log("strl: %s", strl);
-
-  char strh[5];
-  SDL_ReadIO(stream, strh, 4);
-  strh[4] = '\0';
-  SDL_Log("strh: %s", strh);
-
-  uint32_t strh_size = 0;
-  if(!SDL_ReadU32LE(stream, &strh_size)) {
-    SDL_Log("Could not read strh_size");
-    SDL_CloseIO(stream);
-    return nullptr;
-  }
-  SDL_Log("strh_size: %i", strh_size);
-
-  AVIStreamHeader stream_header;
-  SDL_ReadIO(stream, &stream_header, sizeof(AVIStreamHeader));
-  SDL_Log("fccType: %s", stream_header.fccType);
-  SDL_Log("fccHandler: %s", stream_header.fccHandler);
-  SDL_Log("dwFlags: %u", stream_header.dwFlags);
-  SDL_Log("wPriority: %u", stream_header.wPriority);
-  SDL_Log("wLanguage: %u", stream_header.wLanguage);
-  SDL_Log("dwInitialFrames: %u", stream_header.dwInitialFrames);
-  SDL_Log("dwScale: %u", stream_header.dwScale);
-  SDL_Log("dwRate: %u", stream_header.dwRate);
-  SDL_Log("dwStart: %u", stream_header.dwStart);
-  SDL_Log("dwLength: %u", stream_header.dwLength);
-  SDL_Log("dwSuggestedBufferSize: %u", stream_header.dwSuggestedBufferSize);
-  SDL_Log("dwQuality: %u", stream_header.dwQuality);
-  SDL_Log("dwSampleSize: %u", stream_header.dwSampleSize);
-
-
-  
   return nullptr;
 }
