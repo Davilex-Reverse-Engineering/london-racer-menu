@@ -480,9 +480,9 @@ SDL_Texture * VideoHandler::getTexture(SDL_Renderer * renderer, const std::strin
     return nullptr;
   }
 
-  SDL_Log("Searching for chunk head of idx1");
+  SDL_Log("Searching for chunk head of movi");
   ChunkHead next_head = readChunkHead(stream);
-  while (next_head.primary_type != ChunkPrimaryType::idx1 && SDL_TellIO(stream) != file_size) {
+  while (next_head.primary_type != ChunkPrimaryType::LIST && next_head.secondary_type != ChunkSecondaryType::movi && SDL_TellIO(stream) != file_size) {
     SDL_Log("Found chunk head with types %i,%i", next_head.primary_type, next_head.secondary_type);
     if (next_head.size < 1) {
       SDL_Log("Failed to read size of chunk, failing");
@@ -491,8 +491,8 @@ SDL_Texture * VideoHandler::getTexture(SDL_Renderer * renderer, const std::strin
     SDL_SeekIO(stream, (int64_t) next_head.size, SDL_IO_SEEK_CUR);
     next_head = readChunkHead(stream);
   }
-  if (next_head.primary_type != ChunkPrimaryType::idx1) {
-    SDL_Log("Could not find idx1 head, failing");
+  if (next_head.secondary_type != ChunkSecondaryType::movi) {
+    SDL_Log("Could not find movi head, failing");
     SDL_CloseIO(stream);
     free(avi_header);
     free(stream_header);
@@ -500,27 +500,49 @@ SDL_Texture * VideoHandler::getTexture(SDL_Renderer * renderer, const std::strin
     return nullptr;
   }
 
-  SDL_Log("Found idx1");
+  SDL_Log("Found movi");
   for(uint32_t i = 0; i < stream_header->length; i++) {
-    char idx_type[4];
-    SDL_ReadIO(stream, idx_type, 4);
-    if (idx_type[2] != 'd') {
-      i--;
+    char movi_type[4];
+    uint32_t movi_size  = 0;
+    SDL_ReadIO(stream, movi_type, 4);
+    SDL_ReadU32LE(stream, &movi_size);
+    if (movi_type[0] != '0' && movi_type[1] != '0' && movi_type[2] != 'd' && movi_type[3] != 'b') {
+      SDL_SeekIO(stream, (int64_t) movi_type, SDL_IO_SEEK_CUR);
       continue;
     }
-    uint32_t frame_size = 0;
-    SDL_ReadU32LE(stream, &frame_size);  // This still needs error checking
-    uint32_t offset = 0;
-    SDL_ReadU32LE(stream, &offset);  // This still needs error checking
-    SDL_Log("For frame %u offset found is %u, size is %u", i, offset, frame_size);
-    int64_t current_offset = SDL_TellIO(stream);
-    SDL_SeekIO(stream, (int64_t) offset, SDL_IO_SEEK_SET);
-    void * frame_data = calloc(1, frame_size);
-    SDL_ReadIO(stream, frame_data, frame_size);
+    void * frame_data = calloc(1, movi_size);
+    SDL_ReadIO(stream, frame_data, movi_size);
     FILE * fd = fopen("output.bmp", "wb");
-    fwrite(frame_data, 1, strf_head.size + frame_size, fd);
+    uint8_t bm_header[] = {0x42, 0x4d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint32_t return_size = sizeof(bm_header) +  strf_head.size + movi_size;
+
+    // Fix size in the header
+    bm_header[2] = return_size & 0xFF;
+    bm_header[3] = (return_size >> 8) & 0xFF;
+    bm_header[4] = (return_size >> 16) & 0xFF;
+    bm_header[5] = return_size >> 24;
+
+    uint32_t data_offset = sizeof(bm_header) + strf_head.size;
+    // Set the data offset
+    bm_header[10] = data_offset & 0xFF;
+    bm_header[11] = (data_offset >> 8) & 0xFF;
+    bm_header[12] = (data_offset >> 16) & 0xFF;
+    bm_header[13] = data_offset >> 24;
+    fwrite(bm_header, 1, sizeof(bm_header), fd);
+    fwrite(bitmap_header, 1, strf_head.size, fd);
+    fwrite(frame_data, 1, movi_size, fd);
     fclose(fd);
-    SDL_SeekIO(stream, current_offset, SDL_IO_SEEK_SET);
+    free(frame_data);
+
+    SDL_Surface * surface = SDL_LoadBMP("output.bmp");
+    SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_DestroySurface(surface);
+
+    free(avi_header);
+    free(stream_header);
+    free(bitmap_header);
+
+    return texture;
   }
 
   free(avi_header);

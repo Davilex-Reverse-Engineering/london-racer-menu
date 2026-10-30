@@ -7,6 +7,7 @@
 #include "../ui/UiText.hpp"
 #include "../ui/UiImage.hpp"
 #include "../ui/UiCheckbox.hpp"
+#include "../ui/UiVideo.hpp"
 #include "../IniHandler.hpp"
 
 class SundayCup : public BaseMenu {
@@ -22,7 +23,7 @@ private:
     int track = 0;
     bool has_laps = false;
     int laps = 2;
-    UiText * text_car = NULL;
+    UiVideo * car_animation = NULL;
     UiText * text_laps = NULL;
     UiImage * track_image = NULL;
     UiCheckbox * checkbox_damage = NULL;

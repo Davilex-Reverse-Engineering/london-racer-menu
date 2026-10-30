@@ -50,8 +50,8 @@ SundayCup::SundayCup(IniHandler * game_ini_handler, IniHandler * static_ini_hand
   std::string car_nr = this->game_ini_handler->getValue("player", "car");
   std::string league_nr = this->game_ini_handler->getValue("league", "league");
   std::string car_name = this->static_ini_handler->getValues("league" + league_nr, "car" + car_nr)[2];
-  this->text_car = new UiText(330.0f, 150.0f, car_name, {255, 255, 255, 255});
-  this->ui_elements.push_back(this->text_car);
+  this->car_animation = new UiVideo(328.0f, 112.0f, 186.0f, 97.0f, car_name + ".avi");
+  this->ui_elements.push_back(this->car_animation);
 
   // Image for track preview
   int track = this->game_ini_handler->getInt("etappe", "etappe") - 1;
@@ -178,7 +178,7 @@ void SundayCup::setCar(int car_id)
 {
   std::string league_nr = this->game_ini_handler->getValue("league", "league");
   std::string car_name = this->static_ini_handler->getValues("league" + league_nr, "car" + std::to_string(car_id))[2];
-  this->text_car->setText(car_name);
+  this->car_animation->setVideo(car_name + ".avi");
   this->game_ini_handler->setValue("player", "car", car_id);
 }
 

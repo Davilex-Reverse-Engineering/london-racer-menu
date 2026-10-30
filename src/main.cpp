@@ -7,7 +7,6 @@
 #include "MenuManager.hpp"
 #include "IniHandler.hpp"
 #include "FontHandler.hpp"
-#include "VideoHandler.hpp"
 
 int main(int argc, char** argv) {
   IniHandler menu_ini_handler = IniHandler();
@@ -61,9 +60,6 @@ int main(int argc, char** argv) {
     SDL_Log("Could not load fonts");
     return 7;
   }
-
-  VideoHandler::getInstance()->getTexture(renderer, "Aston_1.avi");
-  VideoHandler::getInstance()->getTexture(renderer, "Lotus_1.avi");
 
   InputManager input_manager = InputManager();
   MenuManager menu_manager = MenuManager(&menu_ini_handler, &game_ini_handler, &static_ini_handler);

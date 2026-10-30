@@ -9,7 +9,7 @@
 
 class UiVideo : public UiElement {
 public:
-  UiVideo(float x, float y, float width, float height, const std::string &file_name = "", bool use_transparency=false);
+  UiVideo(float x, float y, float width, float height, const std::string &file_name = "");
   ~UiVideo();
 
   void draw(SDL_Renderer * renderer, bool selected = false);
