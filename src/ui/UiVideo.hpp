@@ -6,6 +6,7 @@
 #include "../../vendor/SDL/include/SDL3/SDL.h"
 
 #include "UiElement.hpp"
+#include "../VideoHandler.hpp"
 
 class UiVideo : public UiElement {
 public:
@@ -17,9 +18,7 @@ public:
   void setVideo(const std::string &file_name);
 
 private:
-  std::string file_name = "";
-  SDL_Texture * image = NULL;
-  bool image_loaded = false;
+  VideoHandler video_handler;
 };
 
 #endif // UI_VIDEO_HPP
