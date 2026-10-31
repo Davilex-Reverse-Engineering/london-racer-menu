@@ -7,6 +7,7 @@
 #include "../ui/UiText.hpp"
 #include "../ui/UiImage.hpp"
 #include "../ui/UiCheckbox.hpp"
+#include "../ui/UiVideo.hpp"
 #include "../IniHandler.hpp"
 
 class TimeTrialMenu : public BaseMenu {
@@ -19,7 +20,7 @@ private:
     IniHandler * game_ini_handler = NULL;
     IniHandler * static_ini_handler = NULL;
     int track = 0;
-    UiText * text_car = NULL;
+    UiVideo * car_animation = NULL;
     UiText * text_laps = NULL;
     UiImage * track_image = NULL;
     UiCheckbox * checkbox_damage = NULL;
