@@ -47,13 +47,15 @@ int main(int argc, char** argv) {
 
   SDL_Window * window = NULL;
   SDL_Renderer * renderer = NULL;
-  if (!SDL_CreateWindowAndRenderer("London Racer", 640, 480, 0, &window, &renderer)) {
+  if (!SDL_CreateWindowAndRenderer("London Racer", 640, 480, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY, &window, &renderer)) {
     SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
     SDL_Quit();
     return 6;
   }
+
   SDL_SetRenderVSync(renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+  SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
   // Load fonts
   if (!FontHandler::getInstance()->load()) {
@@ -61,7 +63,7 @@ int main(int argc, char** argv) {
     return 7;
   }
 
-  InputManager input_manager = InputManager();
+  InputManager input_manager = InputManager(renderer);
   MenuManager menu_manager = MenuManager(&menu_ini_handler, &game_ini_handler, &static_ini_handler);
 
   bool running = true;

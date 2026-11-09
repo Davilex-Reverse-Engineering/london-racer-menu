@@ -9,10 +9,13 @@
 
 class InputManager {
 public:
-  InputManager();
+  InputManager(SDL_Renderer * renderer);
   ~InputManager();
 
   std::vector<Input> getInputs();
+
+private:
+  SDL_Renderer * renderer;
 };
 
 

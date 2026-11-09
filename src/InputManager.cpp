@@ -1,6 +1,7 @@
 #include "InputManager.hpp"
 
-InputManager::InputManager()
+InputManager::InputManager(SDL_Renderer * renderer)
+  : renderer(renderer)
 {
 }
 
@@ -55,7 +56,9 @@ std::vector<Input> InputManager::getInputs() {
         } else {
           break;
         }
-        SDL_GetMouseState(&input.position.x, &input.position.y);
+        SDL_ConvertEventToRenderCoordinates(this->renderer, &event);
+        input.position.x = event.motion.x;
+        input.position.y = event.motion.y;
         break;
       case SDL_EVENT_MOUSE_BUTTON_UP:
         input.type = InputType::POSITIONED;
@@ -64,12 +67,16 @@ std::vector<Input> InputManager::getInputs() {
         } else {
           break;
         }
-        SDL_GetMouseState(&input.position.x, &input.position.y);
+        SDL_ConvertEventToRenderCoordinates(this->renderer, &event);
+        input.position.x = event.motion.x;
+        input.position.y = event.motion.y;
         break;
       case SDL_EVENT_MOUSE_MOTION:
         input.type = InputType::POSITIONED;
         input.event = InputEvent::MOUSE_MOVE;
-        SDL_GetMouseState(&input.position.x, &input.position.y);
+        SDL_ConvertEventToRenderCoordinates(this->renderer, &event);
+        input.position.x = event.motion.x;
+        input.position.y = event.motion.y;
         break;
     }
     if (input.type != InputType::NONE && input.event != InputEvent::NONE) {
