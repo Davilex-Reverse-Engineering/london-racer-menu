@@ -56,7 +56,7 @@ bool ScoresHandler::load()
             SDL_CloseIO(stream);
             return false;
           }
-          entry.name = name_to_utf8(name, name_length);
+          entry.name = Utils::Windows1252ToString(name, name_length);
           if (entry.name.empty()) {
             SDL_Log("Could not convert name %s to utf-8", name);
             free(name);
@@ -130,7 +130,7 @@ bool ScoresHandler::write()
           SDL_CloseIO(stream);
           return false;
         }
-        void * name_data = this->string_to_name(this->lap_records[track][league][i].name);
+        void * name_data = Utils::stringToWindows1252(this->lap_records[track][league][i].name);
         if(!SDL_WriteIO(stream, name_data, 32)) {
           SDL_Log("Could not write name for entry %u for track %u", i, track);
           SDL_CloseIO(stream);
@@ -163,7 +163,7 @@ bool ScoresHandler::write()
           SDL_CloseIO(stream);
           return false;
         }
-        void * name_data = this->string_to_name(this->total_records[track][league][i].name);
+        void * name_data = Utils::stringToWindows1252(this->total_records[track][league][i].name);
         if(!SDL_WriteIO(stream, name_data, 32)) {
           SDL_Log("Could not write name for entry %u for track %u", i, track);
           SDL_CloseIO(stream);
@@ -262,57 +262,4 @@ std::string ScoresHandler::getTimeString(uint32_t time_in_ms)
   centiseconds_string += std::to_string(centiseconds);
 
   return std::to_string(minutes) + ":" + seconds_string + ":" + centiseconds_string;
-}
-
-std::string ScoresHandler::name_to_utf8(void * name, size_t length)
-{
-  SDL_iconv_t iconv = SDL_iconv_open("UTF-8", "ISO-8859-1");
-  if ((size_t)iconv == SDL_ICONV_ERROR) {
-    SDL_Log("Failed to start iconv, ISO-8859-1 support might not be loadable");
-    return "";
-  }
-  void * original = name;
-  size_t inbytesleft = length;
-  size_t outbytesleft = length * 3;
-  char * target = (char *) SDL_calloc(length, 3);  // 3 is probably overkill tbh
-  char * target_start = target;
-
-  size_t iconv_result = SDL_iconv(iconv, (const char **)&original, &inbytesleft, &target, &outbytesleft);
-  if (iconv_result == 0) {
-    std::string result = std::string((char *)target_start, length);
-    free(target_start);
-    SDL_iconv_close(iconv);
-    return result;
-  }
-
-  SDL_Log("Failed convert with status %u (%i)", iconv_result, iconv_result);
-  free(target_start);
-  SDL_iconv_close(iconv);
-  return "";
-}
-
-void * ScoresHandler::string_to_name(std::string &input_string)
-{
-  SDL_iconv_t iconv = SDL_iconv_open("ISO-8859-1", "UTF-8");
-  if ((size_t)iconv == SDL_ICONV_ERROR) {
-    SDL_Log("Failed to start iconv, ISO-8859-1 support might not be loadable");
-    return NULL;
-  }
-
-  const char * original = input_string.c_str();
-  size_t inbytesleft = input_string.length();
-  size_t outbytesleft = 32; // Names are always 32 bytes in total
-  void * target = SDL_calloc(outbytesleft, 1);
-  void * target_start = target;
-
-  size_t iconv_result = SDL_iconv(iconv, &original, &inbytesleft, (char **)&target, &outbytesleft);
-  if (iconv_result == 0) {
-    SDL_iconv_close(iconv);
-    return target_start;
-  }
-
-  SDL_Log("Failed convert with status %u (%i)", iconv_result, iconv_result);
-  SDL_iconv_close(iconv);
-  free(target_start);
-  return NULL;
 }
