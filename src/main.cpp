@@ -10,7 +10,7 @@
 
 int main(int argc, char** argv) {
   IniHandler menu_ini_handler = IniHandler();
-  if (!menu_ini_handler.load("menu.ini")) {
+  if (!menu_ini_handler.load("menu.ini", false)) {
     SDL_Log("Could not load menu.ini");
     return 1;
   }
@@ -29,13 +29,13 @@ int main(int argc, char** argv) {
   }
 
   IniHandler game_ini_handler = IniHandler();
-  if (!game_ini_handler.load("game.ini")) {
+  if (!game_ini_handler.load("game.ini", false)) {
     SDL_Log("Could not load game.ini");
     return 3;
   }
 
   IniHandler static_ini_handler = IniHandler();
-  if (!static_ini_handler.load("static.ini")) {
+  if (!static_ini_handler.load("static.ini", true)) {
     SDL_Log("Could not load static.ini");
     return 4;
   }

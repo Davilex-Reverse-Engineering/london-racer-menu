@@ -17,7 +17,7 @@ IniHandler::~IniHandler()
 {
 }
 
-bool IniHandler::load(const std::string &file_name)
+bool IniHandler::load(const std::string &file_name, bool read_only)
 {
   if (file_name.empty()) {
     return false;
@@ -93,6 +93,7 @@ bool IniHandler::load(const std::string &file_name)
 
   input.close(); 
 
+  this->read_only = read_only;
   return true;
 }
 
@@ -103,6 +104,11 @@ bool IniHandler::write()
 
 bool IniHandler::write(const std::string &file_name)
 {
+  if (this->read_only) {
+    SDL_Log("Could not write %s, because it is loaded as read only", file_name.c_str());
+    return false;
+  }
+
   if (file_name.empty()) {
     return false;
   }
@@ -226,6 +232,11 @@ bool IniHandler::getBool(const std::string &section, const std::string &key) {
 
 void IniHandler::setValue(std::string section, std::string key, const std::string &value)
 {
+  if (this->read_only) {
+    SDL_Log("Could not set value of %s, because %s is loaded as read only", key.c_str(), this->file_name.c_str());
+    return;
+  }
+
   if (this->content.count(section) == 0) {
     this->content[section] = std::map<std::string, std::string>();
   }
@@ -244,6 +255,11 @@ void IniHandler::setValue(std::string section, std::string key, float value)
 
 void IniHandler::setValue(std::string section, std::string key, std::vector<std::string> values)
 {
+  if (this->read_only) {
+    SDL_Log("Could not set value of %s, because %s is loaded as read only", key.c_str(), this->file_name.c_str());
+    return;
+  }
+
   if (this->content.count(section) == 0) {
     this->content[section] = std::map<std::string, std::string>();
   }
@@ -259,6 +275,11 @@ void IniHandler::setValue(std::string section, std::string key, std::vector<std:
 
 void IniHandler::setValue(std::string section, std::string key, std::vector<int> values)
 {
+  if (this->read_only) {
+    SDL_Log("Could not set value of %s, because %s is loaded as read only", key.c_str(), this->file_name.c_str());
+    return;
+  }
+
   if (this->content.count(section) == 0) {
     this->content[section] = std::map<std::string, std::string>();
   }
@@ -274,6 +295,11 @@ void IniHandler::setValue(std::string section, std::string key, std::vector<int>
 
 void IniHandler::setValue(std::string section, std::string key, std::vector<float> values)
 {
+  if (this->read_only) {
+    SDL_Log("Could not set value of %s, because %s is loaded as read only", key.c_str(), this->file_name.c_str());
+    return;
+  }
+
   if (this->content.count(section) == 0) {
     this->content[section] = std::map<std::string, std::string>();
   }

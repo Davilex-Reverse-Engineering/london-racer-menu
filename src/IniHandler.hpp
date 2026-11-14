@@ -10,7 +10,7 @@ public:
   IniHandler();
   ~IniHandler();
 
-  bool load(const std::string &file_name);
+  bool load(const std::string &file_name, bool read_only);
   bool write();
   bool write(const std::string &file_name);
 
@@ -38,6 +38,7 @@ public:
 private:
   std::string file_name = "";
   std::map<std::string, std::map<std::string, std::string>> content;
+  bool read_only = true;
 
 };
 
