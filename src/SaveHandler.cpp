@@ -100,6 +100,194 @@ bool SaveHandler::readSaveData(SDL_IOStream *stream)
     return false;
   }
 
+  if(!Utils::readBoolean(stream, &this->save_data.all_leagues_completed)) {
+    SDL_Log("Failed to read if all leagues have been completed in save file");
+    return false;
+  }
+
+  if(!Utils::readBoolean(stream, &this->save_data.league1_unlocked)) {
+    SDL_Log("Failed to read if league 1 is unlocked in save file");
+    return false;
+  }
+
+  if(!Utils::readBoolean(stream, &this->save_data.league2_unlocked)) {
+    SDL_Log("Failed to read if league 1 is unlocked in save file");
+    return false;
+  }
+
+  if(!Utils::readBoolean(stream, &this->save_data.league_introduction_watched)) {
+    SDL_Log("Failed to read if the league introduction was watched in save file");
+    return false;
+  }
+
+  if(!Utils::readLeagueIdU32(stream, &this->save_data.league_to_show_introduction_for)) {
+    SDL_Log("Failed to read league to show introduction for in save file");
+    return false;
+  }
+
+  if(!SDL_ReadIO(stream, this->save_data.unknown1, 3)) {
+    SDL_Log("Failed to read unknown1 in save file");
+    return false;
+  }
+
+  if(!SDL_ReadU8(stream, &this->save_data.races_completed_in_current_league)) {
+    SDL_Log("Failed to read races completed in current league in save file");
+    return false;
+  }
+
+  if(!SDL_ReadIO(stream, this->save_data.unknown2, 3)) {
+    SDL_Log("Failed to read unknown2 in save file");
+    return false;
+  }
+
+  if(!SDL_ReadIO(stream, this->save_data.league_has_race, 10)) {
+    SDL_Log("Failed to read league has race list in save file");
+    return false;
+  }
+
+  if(!this->readLeagueData(stream, &this->save_data.league0)) {
+    SDL_Log("Failed to read league 0 data in save file");
+    return false;
+  }
+
+  if(!this->readLeagueData(stream, &this->save_data.league1)) {
+    SDL_Log("Failed to read league 1 data in save file");
+    return false;
+  }
+
+  if(!this->readLeagueData(stream, &this->save_data.league2)) {
+    SDL_Log("Failed to read league 2 data in save file");
+    return false;
+  }
+
+  if(!SDL_ReadIO(stream, this->save_data.unknown3, 6)) {
+    SDL_Log("Failed to read unknown3 in save file");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &this->save_data.unknown4)) {
+    SDL_Log("Failed to read unknown4 in save file");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &this->save_data.unknown5)) {
+    SDL_Log("Failed to read unknown5 in save file");
+    return false;
+  }
+
+  if(!SDL_ReadIO(stream, this->save_data.league0_car_unlocked, CAR_COUNT)) {
+    SDL_Log("Failed to read league 0 unlocked cars in save file");
+    return false;
+  }
+
+  if(!SDL_ReadIO(stream, this->save_data.league1_car_unlocked, CAR_COUNT)) {
+    SDL_Log("Failed to read league 1 unlocked cars in save file");
+    return false;
+  }
+
+  if(!SDL_ReadIO(stream, this->save_data.league2_car_unlocked, CAR_COUNT)) {
+    SDL_Log("Failed to read league 2 unlocked cars in save file");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &this->save_data.track_to_unlock_count)) {
+    SDL_Log("Failed to read track to unlock count in save file");
+    return false;
+  }
+  if(this->save_data.track_to_unlock_count > 0) {
+    this->save_data.track_unlocked = (bool *) calloc(this->save_data.track_to_unlock_count, sizeof(bool));
+    for(size_t i = 0; i < this->save_data.track_to_unlock_count; i++) {
+      if(!Utils::readBoolean(stream, &this->save_data.track_unlocked[i])) {
+        SDL_Log("Failed to load if track %lu was unlocked from save data", i);
+        free(this->save_data.track_unlocked);
+        this->save_data.track_unlocked = nullptr;
+        return false;
+      }
+    }
+  } else {
+    SDL_Log("For some reason there is no track unlock information in the save data");
+    this->save_data.track_unlocked = nullptr;
+  }
+
+  if(!SDL_ReadU32LE(stream, &this->save_data.track_count)) {
+    SDL_Log("Failed to read track count in save file");
+    if(this->save_data.track_unlocked) {
+      free(this->save_data.track_unlocked);
+      this->save_data.track_unlocked = nullptr;
+    }
+    return false;
+  }
+  if(this->save_data.track_count > 0) {
+    this->save_data.best_finish_position = (uint32_t *) calloc(this->save_data.track_to_unlock_count, sizeof(uint32_t));
+    for(size_t i = 0; i < this->save_data.track_count; i++) {
+      if(!SDL_ReadU32LE(stream, &this->save_data.best_finish_position[i])) {
+        SDL_Log("Failed to load best finish position for track %lu from save data", i);
+        if(this->save_data.track_unlocked) {
+          free(this->save_data.track_unlocked);
+          this->save_data.track_unlocked = nullptr;
+        }
+        free(this->save_data.best_finish_position);
+        this->save_data.best_finish_position = nullptr;
+        return false;
+      }
+    }
+  } else {
+    SDL_Log("For some reason there are no track finish positions in the save data");
+    this->save_data.best_finish_position = nullptr;
+  }
+
+  if(!SDL_ReadU32LE(stream, &this->save_data.time_trial_track_count)) {
+    SDL_Log("Failed to read track count in save file");
+    if(this->save_data.track_unlocked) {
+      free(this->save_data.track_unlocked);
+      this->save_data.track_unlocked = nullptr;
+    }
+    if(this->save_data.best_finish_position) {
+      free(this->save_data.best_finish_position);
+      this->save_data.best_finish_position = nullptr;
+    }
+    return false;
+  }
+  if(this->save_data.time_trial_track_count > 0) {
+    this->save_data.time_trial_beaten = (bool *) calloc(this->save_data.time_trial_track_count, sizeof(bool));
+    for(size_t i = 0; i < this->save_data.time_trial_track_count; i++) {
+      if(!Utils::readBoolean(stream, &this->save_data.time_trial_beaten[i])) {
+        SDL_Log("Failed to load if track %lu was beaten in time trial from save data", i);
+        if(this->save_data.track_unlocked) {
+          free(this->save_data.track_unlocked);
+          this->save_data.track_unlocked = nullptr;
+        }
+        if(this->save_data.best_finish_position) {
+          free(this->save_data.best_finish_position);
+          this->save_data.best_finish_position = nullptr;
+        }
+        free(this->save_data.time_trial_beaten);
+        this->save_data.time_trial_beaten = nullptr;
+        return false;
+      }
+    }
+  } else {
+    SDL_Log("For some reason there are no time trials beaten information in the save data");
+    this->save_data.time_trial_beaten = nullptr;
+  }
+
+  if(!this->readRaceRecords(stream, &this->save_data.last_race_records)) {
+    SDL_Log("Failed to load records from last race from save data");
+    if(this->save_data.track_unlocked) {
+      free(this->save_data.track_unlocked);
+      this->save_data.track_unlocked = nullptr;
+    }
+    if(this->save_data.best_finish_position) {
+      free(this->save_data.best_finish_position);
+      this->save_data.best_finish_position = nullptr;
+    }
+    if(this->save_data.time_trial_beaten) {
+      free(this->save_data.time_trial_beaten);
+      this->save_data.time_trial_beaten = nullptr;
+    }
+    return false;
+  }
+
   return true;
 }
 
@@ -319,7 +507,241 @@ bool SaveHandler::readSettings(SDL_IOStream *stream)
   return true;
 }
 
-bool SaveHandler::readFileSignature(SDL_IOStream * stream)
+bool SaveHandler::readRaceRecordEntry(SDL_IOStream *stream, RaceRecordEntry *race_record_entry)
+{
+  if(!Utils::readBoolean(stream, &race_record_entry->is_player)) {
+    SDL_Log("Failed to get if record entry is for a player");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &race_record_entry->position)) {
+    SDL_Log("Failed to get position from record entry");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &race_record_entry->time)) {
+    SDL_Log("Failed to get time from record entry");
+    return false;
+  }
+
+  if(!Utils::readLeagueIdU8(stream, &race_record_entry->league)) {
+    SDL_Log("Failed to get league from record entry");
+    return false;
+  }
+
+  if(!SDL_ReadU8(stream, &race_record_entry->car)) {
+    SDL_Log("Failed to get car from record entry");
+    return false;
+  }
+  if (race_record_entry->car >= CAR_COUNT) {
+    SDL_Log("Car id %u found in record entry is invalid, failing", race_record_entry->car);
+    return false;
+  }
+
+  if(!this->readName(stream, &race_record_entry->name)) {
+    SDL_Log("Failed to get name from record entry");
+    return false;
+  }
+
+  return true;
+}
+
+bool SaveHandler::readRaceRecords(SDL_IOStream *stream, RaceRecords *race_records)
+{
+  if(!SDL_ReadU32LE(stream, &race_records->racer_count)) {
+    SDL_Log("Failed to get count from record data");
+    return false;
+  }
+  if(race_records->racer_count > 0) {
+    race_records->records = (RaceRecordEntry *) calloc(race_records->racer_count, sizeof(RaceRecordEntry));
+    for(size_t i = 0; i < race_records->racer_count; i++) {
+      if(!readRaceRecordEntry(stream, &race_records->records[i])) {
+        SDL_Log("Failed to get entry from record data");
+        free(race_records->records);
+        race_records->records = nullptr;
+        return false;
+      }
+    }
+  } else {
+    race_records->records = nullptr;
+  }
+
+  if(!SDL_ReadU32LE(stream, &race_records->lap_count)) {
+    SDL_Log("Failed to get lap count from record data");
+    return false;
+  }
+  if(race_records->lap_count > 0) {
+    race_records->player_lap_times = (uint32_t *) calloc(race_records->lap_count, sizeof(uint32_t));
+    for(size_t i = 0; i < race_records->lap_count; i++) {
+      if(!SDL_ReadU32LE(stream, &race_records->player_lap_times[i])) {
+        SDL_Log("Failed to get player lap time from record data");
+        free(race_records->records);
+        race_records->records = nullptr;
+        free(race_records->player_lap_times);
+        race_records->player_lap_times = nullptr;
+        return false;
+      }
+    }
+  } else {
+    race_records->player_lap_times = nullptr;
+  }
+
+  return true;
+}
+
+bool SaveHandler::readLeaguePointsEntry(SDL_IOStream *stream, LeaguePointsEntry *league_points_entry)
+{
+  if(!SDL_ReadU32LE(stream, &league_points_entry->points)) {
+    SDL_Log("Failed to get points from league points entry");
+    return false;
+  }
+
+  if(!Utils::readBoolean(stream, &league_points_entry->is_player)) {
+    SDL_Log("Failed to get is player from league points entry");
+    return false;
+  }
+
+  if(!Utils::readLeagueIdU32(stream, &league_points_entry->league)) {
+    SDL_Log("Failed to get league from league points entry");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &league_points_entry->last_finish_position)) {
+    SDL_Log("Failed to get last finish position from league points entry");
+    return false;
+  }
+
+  return true;
+}
+
+bool SaveHandler::readLeagueData(SDL_IOStream *stream, LeagueData *league_data)
+{
+  if(!SDL_ReadU32LE(stream, &league_data->record_count)) {
+    SDL_Log("Failed to get record count from league data");
+    return false;
+  }
+  if(league_data->record_count > 0) {
+    league_data->race_records = (RaceRecords *) calloc(league_data->record_count, sizeof(RaceRecords));
+    for(size_t i = 0; i < league_data->record_count; i++) {
+      if(!readRaceRecords(stream, &league_data->race_records[i])) {
+        SDL_Log("Failed to get record from league data");
+        free(league_data->race_records);
+        league_data->race_records = nullptr;
+        return false;
+      }
+    }
+  } else {
+    league_data->race_records = nullptr;
+  }
+
+  if(!SDL_ReadU8(stream, &league_data->racer_count)) {
+    SDL_Log("Failed to get racer count from league data");
+    if (league_data->race_records) {
+      free(league_data->race_records);
+      league_data->race_records = nullptr;
+    }
+    return false;
+  }
+
+  if(!SDL_ReadU8(stream, &league_data->unknown1)) {
+    SDL_Log("Failed to get unknown1 from league data");
+    if (league_data->race_records) {
+      free(league_data->race_records);
+      league_data->race_records = nullptr;
+    }
+    return false;
+  }
+
+  if(!SDL_ReadU8(stream, &league_data->unknown2)) {
+    SDL_Log("Failed to get unknown2 from league data");
+    if (league_data->race_records) {
+      free(league_data->race_records);
+      league_data->race_records = nullptr;
+    }
+    return false;
+  }
+
+  if(!SDL_ReadU8(stream, &league_data->unknown3)) {
+    SDL_Log("Failed to get unknown3 from league data");
+    if (league_data->race_records) {
+      free(league_data->race_records);
+      league_data->race_records = nullptr;
+    }
+    return false;
+  }
+
+  if(league_data->racer_count > 0) {
+    league_data->league_points_entries = (LeaguePointsEntry *) calloc(league_data->racer_count, sizeof(LeaguePointsEntry));
+    for(size_t i = 0; i < league_data->racer_count; i++) {
+      if(!this->readLeaguePointsEntry(stream, &league_data->league_points_entries[i])) {
+        SDL_Log("Failed to get league points entry from league data");
+        if (league_data->race_records) {
+          free(league_data->race_records);
+          league_data->race_records = nullptr;
+        }
+        free(league_data->league_points_entries);
+        league_data->league_points_entries = nullptr;
+        return false;
+      }
+    }
+  }
+
+  if(!SDL_ReadU32LE(stream, &league_data->unknown4)) {
+    SDL_Log("Failed to get unknown4 from league data");
+    if (league_data->race_records) {
+      free(league_data->race_records);
+      league_data->race_records = nullptr;
+    }
+    if (league_data->league_points_entries) {
+      free(league_data->league_points_entries);
+      league_data->league_points_entries = nullptr;
+    }
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &league_data->unknown5)) {
+    SDL_Log("Failed to get unknown3 from league data");
+    if (league_data->race_records) {
+      free(league_data->race_records);
+      league_data->race_records = nullptr;
+    }
+    if (league_data->league_points_entries) {
+      free(league_data->league_points_entries);
+      league_data->league_points_entries = nullptr;
+    }
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &league_data->track_total_count)) {
+    SDL_Log("Failed to get track total count from league data");
+    if (league_data->race_records) {
+      free(league_data->race_records);
+      league_data->race_records = nullptr;
+    }
+    if (league_data->league_points_entries) {
+      free(league_data->league_points_entries);
+      league_data->league_points_entries = nullptr;
+    }
+    return false;
+  }
+
+  if(!SDL_ReadIO(stream, &league_data->unknown6, 10)) {
+    SDL_Log("Failed to get unknown6 from league data");
+    if (league_data->race_records) {
+      free(league_data->race_records);
+      league_data->race_records = nullptr;
+    }
+    if (league_data->league_points_entries) {
+      free(league_data->league_points_entries);
+      league_data->league_points_entries = nullptr;
+    }
+    return false;
+  }
+
+  return true;
+}
+
+bool SaveHandler::readFileSignature(SDL_IOStream *stream)
 {
   if(SDL_TellIO(stream) != 0) {
     SDL_Log("The file signature can only be read from the beginning of the file");

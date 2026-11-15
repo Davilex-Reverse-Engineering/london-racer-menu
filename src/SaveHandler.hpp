@@ -5,6 +5,7 @@
 
 #include <string>
 #include <stdint.h>
+#include "constants.hpp"
 
 class SaveHandler {
 public:
@@ -58,7 +59,6 @@ private:
     uint32_t time;
     uint8_t league;
     uint8_t car;
-    uint8_t name_length;
     std::string name;  // 32 bytes long in the file
   } RaceRecordEntry;
 
@@ -78,7 +78,7 @@ private:
 
   typedef struct LeagueData {
     uint32_t record_count;
-    RaceRecords * track_records;
+    RaceRecords * race_records;
     uint8_t racer_count;
     uint8_t unknown1;
     uint8_t unknown2;
@@ -104,19 +104,19 @@ private:
     bool league2_unlocked;
     bool league_introduction_watched;
     uint32_t league_to_show_introduction_for;  // Only used if league_introduction_watched is false
-    uint8_t unknown2[3];  // This seems to always be filled with 0s
+    uint8_t unknown1[3];  // This seems to always be filled with 0s
     uint8_t races_completed_in_current_league;
-    uint8_t unknown3[3];
-    bool league_has_race[10];  // List of the same amount of true values at the league has races, wrong too
+    uint8_t unknown2[3];
+    uint8_t league_has_race[10];  // List of the same amount of true values at the league has races, wrong too
     LeagueData league0;
     LeagueData league1;
     LeagueData league2;
-    uint8_t unknown4[6];
+    uint8_t unknown3[6];
+    uint32_t unknown4;
     uint32_t unknown5;
-    uint32_t unknown6;
-    bool league0_car_unlocked[10];
-    bool league1_car_unlocked[10];
-    bool league2_car_unlocked[10];
+    uint8_t league0_car_unlocked[CAR_COUNT];
+    uint8_t league1_car_unlocked[CAR_COUNT];
+    uint8_t league2_car_unlocked[CAR_COUNT];
     uint32_t track_to_unlock_count;
     bool * track_unlocked;
     uint32_t track_count;
@@ -135,10 +135,10 @@ private:
 
   bool readOwnedCars(SDL_IOStream * stream);
   bool readSettings(SDL_IOStream * stream);
-  // bool readRaceRecordEntry(SDL_IOStream * stream, RaceRecordEntry * race_record_entry);
-  // bool readRaceRecords(SDL_IOStream * stream, RaceRecords * race_records);
-  // bool readLeaguePointsEntry(SDL_IOStream * stream, LeaguePointsEntry * league_points_entry);
-  // bool readLeagueData(SDL_IOStream * stream, LeagueData * league_data);
+  bool readRaceRecordEntry(SDL_IOStream * stream, RaceRecordEntry * race_record_entry);
+  bool readRaceRecords(SDL_IOStream * stream, RaceRecords * race_records);
+  bool readLeaguePointsEntry(SDL_IOStream * stream, LeaguePointsEntry * league_points_entry);
+  bool readLeagueData(SDL_IOStream * stream, LeagueData * league_data);
   
   bool readFileSignature(SDL_IOStream * stream);
   bool readName(SDL_IOStream * stream, std::string * output_string);
