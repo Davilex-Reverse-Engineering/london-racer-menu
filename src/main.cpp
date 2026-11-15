@@ -7,6 +7,7 @@
 #include "MenuManager.hpp"
 #include "IniHandler.hpp"
 #include "FontHandler.hpp"
+#include "SaveHandler.hpp"
 
 int main(int argc, char** argv) {
   IniHandler menu_ini_handler = IniHandler();
@@ -61,6 +62,12 @@ int main(int argc, char** argv) {
   if (!FontHandler::getInstance()->load()) {
     SDL_Log("Could not load fonts");
     return 7;
+  }
+
+  SaveHandler save_handler;
+  if (!save_handler.load()) {
+    SDL_Log("Could not load save data");
+    return 8;
   }
 
   InputManager input_manager = InputManager(renderer);

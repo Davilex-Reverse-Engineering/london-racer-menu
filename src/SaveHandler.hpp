@@ -91,14 +91,9 @@ private:
   } LeagueData;
 
   typedef struct SaveData {
-    uint8_t signature_length;
-    char signature[3];
-    uint8_t name_length;
     std::string name;  // Takes up 32 bytes in the file
-    uint8_t reserved1[3];
     uint32_t money;
-    uint8_t reserved2[4];
-    uint64_t timestamp;
+    SDL_DateTime timestamp;
     uint32_t selected_car;
     uint32_t owned_car_count;
     OwnedCar * owned_cars;
@@ -132,13 +127,21 @@ private:
   } SaveData;
 
   SaveData save_data;
+  bool loaded = false;
 
-  bool readOwnedCar(SDL_IOStream * stream, OwnedCar * owned_car);
-  bool readSettings(SDL_IOStream * stream, Settings * settings);
-  bool readRaceRecordEntry(SDL_IOStream * stream, RaceRecordEntry * race_record_entry);
-  bool readRaceRecords(SDL_IOStream * stream, RaceRecords * race_records);
-  bool readLeaguePointsEntry(SDL_IOStream * stream, LeaguePointsEntry * league_points_entry);
-  bool readLeagueData(SDL_IOStream * stream, LeagueData * league_data);
+
+  bool readSaveData(SDL_IOStream * stream);
+
+  // bool readOwnedCar(SDL_IOStream * stream, OwnedCar * owned_car);
+  // bool readSettings(SDL_IOStream * stream, Settings * settings);
+  // bool readRaceRecordEntry(SDL_IOStream * stream, RaceRecordEntry * race_record_entry);
+  // bool readRaceRecords(SDL_IOStream * stream, RaceRecords * race_records);
+  // bool readLeaguePointsEntry(SDL_IOStream * stream, LeaguePointsEntry * league_points_entry);
+  // bool readLeagueData(SDL_IOStream * stream, LeagueData * league_data);
+  
+  bool readFileSignature(SDL_IOStream * stream);
+  bool readName(SDL_IOStream * stream, std::string * output_string);
+  bool readTimestamp(SDL_IOStream * stream, SDL_DateTime *date_time);
 
 };
 

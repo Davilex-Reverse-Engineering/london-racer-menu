@@ -73,6 +73,23 @@ std::string Utils::Windows1252ToString(void * windows_1252_string, size_t length
   return "";
 }
 
+// Make sure reserved bytes are set to 0
+bool Utils::validatedReservedBytes(SDL_IOStream *stream, size_t count)
+{
+  uint8_t reserved_byte = 0;
+  for(size_t i = 0; i < count; i++) {
+    if(!SDL_ReadU8(stream, &reserved_byte)) {
+      SDL_Log("Could not process reserved byte");
+      return false;
+    }
+    if(reserved_byte != 0) {
+      SDL_Log("Reserved byte was set to %u instead of 0", reserved_byte);
+      return false;
+    }
+  }
+  return true;
+}
+
 void * Utils::stringToWindows1252(std::string &input_string)
 {
   SDL_iconv_t iconv = SDL_iconv_open("ISO-8859-1", "UTF-8");

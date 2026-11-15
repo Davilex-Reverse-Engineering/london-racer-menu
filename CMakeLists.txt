@@ -39,6 +39,7 @@ add_executable(${PROJECT_NAME} WIN32
   src/FontHandler.cpp
   src/ImageHandler.cpp
   src/VideoHandler.cpp
+  src/SaveHandler.cpp
   src/ui/UiButton.cpp
   src/ui/UiCheckbox.cpp
   src/ui/UiRectangle.cpp
