@@ -115,3 +115,46 @@ void * Utils::stringToWindows1252(std::string &input_string)
   free(target_start);
   return NULL;
 }
+
+
+bool Utils::readLeagueIdU32(SDL_IOStream *stream, uint32_t *league_id)
+{
+  if(!SDL_ReadU32LE(stream, league_id)) {
+    SDL_Log("Failed to read league id");
+    return false;
+  }
+  if(*league_id != 0 && *league_id != 1 && *league_id != 2) {
+    SDL_Log("%u is not a valid league id", *league_id);
+    return false;
+  }
+  return true;
+}
+
+bool Utils::readLeagueIdU8(SDL_IOStream *stream, uint8_t *league_id)
+{
+  if(!SDL_ReadU8(stream, league_id)) {
+    SDL_Log("Failed to read league id");
+    return false;
+  }
+  if(*league_id != 0 && *league_id != 1 && *league_id != 2) {
+    SDL_Log("%u is not a valid league id", *league_id);
+    return false;
+  }
+  return true;
+}
+
+bool Utils::readBoolean(SDL_IOStream *stream, bool *boolean)
+{
+  uint8_t cache = 0;
+  if(!SDL_ReadU8(stream, &cache)) {
+    SDL_Log("Failed to get boolean");
+    return false;
+  }
+  if(cache > 1) {
+    SDL_Log("%u is not a value a boolean should have", cache);
+    return false;
+  }
+
+  *boolean = (cache == 1);
+  return true;
+}

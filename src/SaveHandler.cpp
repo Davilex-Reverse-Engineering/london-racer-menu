@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include "Utils.hpp"
+#include "constants.hpp"
 
 SaveHandler::SaveHandler()
 {
@@ -10,11 +11,12 @@ SaveHandler::SaveHandler()
 
 SaveHandler::~SaveHandler()
 {
+  this->unload();
 }
 
 bool SaveHandler::load()
 {
-  this->loaded = false;
+  this->unload();
   SDL_IOStream * stream = SDL_IOFromFile(Utils::getFullPath(this->file_name).c_str(), "rb");
   if (stream == NULL) {
     SDL_Log("Could not load file Current.rcr as stream");
@@ -31,6 +33,19 @@ bool SaveHandler::load()
 bool SaveHandler::write()
 {
   return false;
+}
+
+void SaveHandler::unload()
+{
+  if (!this->loaded) {
+    return;
+  }
+
+  if(this->save_data.owned_cars) {
+    free(this->save_data.owned_cars);
+  }
+
+  this->loaded = false;
 }
 
 bool SaveHandler::readSaveData(SDL_IOStream *stream)
@@ -62,6 +77,242 @@ bool SaveHandler::readSaveData(SDL_IOStream *stream)
 
   if(!this->readTimestamp(stream, &this->save_data.timestamp)) {
     SDL_Log("Failed to read timestamp in save file");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &this->save_data.selected_car)) {
+    SDL_Log("Failed to read selected car in save file");
+    return false;
+  }
+
+  if(!this->readOwnedCars(stream)) {
+    SDL_Log("Failed to read owned cars in save file");
+    return false;
+  }
+
+  if(!this->readSettings(stream)) {
+    SDL_Log("Failed to read settings in save file");
+    return false;
+  }
+
+  if(!Utils::readLeagueIdU32(stream, &this->save_data.current_league)) {
+    SDL_Log("Failed to read current league in save file");
+    return false;
+  }
+
+  return true;
+}
+
+bool SaveHandler::readOwnedCars(SDL_IOStream *stream)
+{
+  if(!SDL_ReadU32LE(stream, &this->save_data.owned_car_count)) {
+    SDL_Log("Failed to owned car count");
+    return false;
+  }
+
+  // Do not run calloc if there are no owned cars
+  if(this->save_data.owned_car_count == 0) {
+    this->save_data.owned_cars = nullptr;
+    return true;
+  }
+
+  if(this->save_data.selected_car >= this->save_data.owned_car_count) {
+    SDL_Log("Selected car is outside of owned car count, failing");
+    this->save_data.owned_cars = nullptr;
+    return false;
+  }
+
+  this->save_data.owned_cars = (OwnedCar *) calloc(this->save_data.owned_car_count, sizeof(OwnedCar));
+  for(size_t i = 0; i < this->save_data.owned_car_count; i++) {
+    OwnedCar * car = &this->save_data.owned_cars[i];
+    if(!SDL_ReadU32LE(stream, &car->damage_percentage)) {
+      SDL_Log("Failed to get damage percentage count");
+      free(this->save_data.owned_cars);
+      this->save_data.owned_cars = nullptr;
+      return false;
+    }
+    if(car->damage_percentage > 100) {
+      SDL_Log("Damage percentage was invalid value %u", car->damage_percentage);
+      free(this->save_data.owned_cars);
+      this->save_data.owned_cars = nullptr;
+      return false;
+    }
+    
+    if(!Utils::readBoolean(stream, &car->engine_upgraded)) {
+      SDL_Log("Failed to get if the engine was upgraded");
+      free(this->save_data.owned_cars);
+      this->save_data.owned_cars = nullptr;
+      return false;
+    }
+  
+    if(!Utils::readBoolean(stream, &car->tires_upgraded)) {
+      SDL_Log("Failed to get if the tires were upgraded");
+      free(this->save_data.owned_cars);
+      this->save_data.owned_cars = nullptr;
+      return false;
+    }
+
+    if(!Utils::readBoolean(stream, &car->nitrous_upgraded)) {
+      SDL_Log("Failed to get if the nitrous was installed");
+      free(this->save_data.owned_cars);
+      this->save_data.owned_cars = nullptr;
+      return false;
+    }
+
+    if(!Utils::readBoolean(stream, &car->brakes_upgraded)) {
+      SDL_Log("Failed to get if the brakes were upgraded");
+      free(this->save_data.owned_cars);
+      this->save_data.owned_cars = nullptr;
+      return false;
+    }
+
+    if(!Utils::readBoolean(stream, &car->gearbox_upgraded)) {
+      SDL_Log("Failed to get if the gearbox was upgraded");
+      free(this->save_data.owned_cars);
+      this->save_data.owned_cars = nullptr;
+      return false;
+    }
+
+    if(!Utils::readLeagueIdU8(stream, &car->league)) {
+      SDL_Log("Failed to get league of car");
+      free(this->save_data.owned_cars);
+      this->save_data.owned_cars = nullptr;
+      return false;
+    }
+
+    if(!SDL_ReadU8(stream, &car->car_id)) {
+      SDL_Log("Failed to get id of car");
+      free(this->save_data.owned_cars);
+      this->save_data.owned_cars = nullptr;
+      return false;
+    }
+    if(car->car_id >= CAR_COUNT) {
+      SDL_Log("Car id %u is invalid", car->car_id);
+      free(this->save_data.owned_cars);
+      this->save_data.owned_cars = nullptr;
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool SaveHandler::readSettings(SDL_IOStream *stream)
+{
+  Settings * settings = &this->save_data.settings;
+  if(!SDL_ReadU32LE(stream, &settings->resolution_id)) {
+    SDL_Log("Failed to get resolution id from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->sound_fx_volume)) {
+    SDL_Log("Failed to get sound fx volume from settings");
+    return false;
+  }
+  if(settings->sound_fx_volume > 100) {
+    SDL_Log("Sound fx volume was invalid value %u", settings->sound_fx_volume);
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->music_volume)) {
+    SDL_Log("Failed to get music volume from settings");
+    return false;
+  }
+  if(settings->music_volume > 100) {
+    SDL_Log("Music volume was invalid value %u", settings->music_volume);
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->police_volume)) {
+    SDL_Log("Failed to get police volume from settings");
+    return false;
+  }
+  if(settings->police_volume > 100) {
+    SDL_Log("Police volume was invalid value %u", settings->police_volume);
+    return false;
+  }
+
+  if(!Utils::readBoolean(stream, &settings->sound_fx_enabled)) {
+    SDL_Log("Failed to get if sound effects are enabled from settings");
+    return false;
+  }
+
+  if(!Utils::readBoolean(stream, &settings->music_enabled)) {
+    SDL_Log("Failed to get if music is enabled from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU8(stream, &settings->mystery_value1)) {
+    SDL_Log("Failed to get mystery value 1 from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU8(stream, &settings->mystery_value2)) {
+    SDL_Log("Failed to get mystery value 2 from settings");
+    return false;
+  }
+
+  if(!Utils::readBoolean(stream, &settings->info_screen_enabled)) {
+    SDL_Log("Failed to get if info screen is enabled from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU8(stream, &settings->mystery_value3)) {
+    SDL_Log("Failed to get mystery value 3 from settings");
+    return false;
+  }
+
+  if(!Utils::readBoolean(stream, &settings->police_sound_enabled)) {
+    SDL_Log("Failed to get if police sound is enabled from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->keycode_accelerate)) {
+    SDL_Log("Failed to get accelerate keycode from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->keycode_brake)) {
+    SDL_Log("Failed to get brake keycode from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->keycode_left)) {
+    SDL_Log("Failed to get left keycode from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->keycode_right)) {
+    SDL_Log("Failed to get right keycode from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->keycode_boost)) {
+    SDL_Log("Failed to get boost keycode from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->keycode_handbrake)) {
+    SDL_Log("Failed to get handbrake keycode from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->keycode_horn)) {
+    SDL_Log("Failed to get horn keycode from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->input_method)) {
+    SDL_Log("Failed to get input method from settings");
+    return false;
+  }
+
+  if(!SDL_ReadU32LE(stream, &settings->steering_sensitivity)) {
+    SDL_Log("Failed to get steering sensitivity from settings");
+    return false;
+  }
+  if(settings->steering_sensitivity > 100) {
+    SDL_Log("steering sensitivity was invalid value %u", settings->steering_sensitivity);
     return false;
   }
 

@@ -129,11 +129,12 @@ private:
   SaveData save_data;
   bool loaded = false;
 
+  void unload();
 
   bool readSaveData(SDL_IOStream * stream);
 
-  // bool readOwnedCar(SDL_IOStream * stream, OwnedCar * owned_car);
-  // bool readSettings(SDL_IOStream * stream, Settings * settings);
+  bool readOwnedCars(SDL_IOStream * stream);
+  bool readSettings(SDL_IOStream * stream);
   // bool readRaceRecordEntry(SDL_IOStream * stream, RaceRecordEntry * race_record_entry);
   // bool readRaceRecords(SDL_IOStream * stream, RaceRecords * race_records);
   // bool readLeaguePointsEntry(SDL_IOStream * stream, LeaguePointsEntry * league_points_entry);
