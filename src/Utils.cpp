@@ -90,7 +90,18 @@ bool Utils::validatedReservedBytes(SDL_IOStream *stream, size_t count)
   return true;
 }
 
-void * Utils::stringToWindows1252(std::string &input_string)
+bool Utils::writeReservedBytes(SDL_IOStream *stream, size_t count)
+{
+  for(size_t i = 0; i < count; i++) {
+    if(!SDL_WriteU8(stream, 0)) {
+      SDL_Log("Failed to write reserved byte");
+      return false;
+    }
+  }
+  return true;
+}
+
+void * Utils::stringToWindows1252(std::string &input_string, uint8_t *output_length)
 {
   SDL_iconv_t iconv = SDL_iconv_open("ISO-8859-1", "UTF-8");
   if ((size_t)iconv == SDL_ICONV_ERROR) {
@@ -106,6 +117,9 @@ void * Utils::stringToWindows1252(std::string &input_string)
 
   size_t iconv_result = SDL_iconv(iconv, &original, &inbytesleft, (char **)&target, &outbytesleft);
   if (iconv_result == 0) {
+    if (output_length) {
+      *output_length = 32 - outbytesleft;
+    }
     SDL_iconv_close(iconv);
     return target_start;
   }

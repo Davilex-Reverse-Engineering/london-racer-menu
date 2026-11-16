@@ -75,7 +75,7 @@ bool SaveHandler::readSaveData(SDL_IOStream *stream)
     return false;
   }
 
-  if(!this->readTimestamp(stream, &this->save_data.timestamp)) {
+  if(!this->readTimestamp(stream)) {
     SDL_Log("Failed to read timestamp in save file");
     return false;
   }
@@ -291,6 +291,200 @@ bool SaveHandler::readSaveData(SDL_IOStream *stream)
   return true;
 }
 
+bool SaveHandler::writeSaveData(SDL_IOStream *stream)
+{
+  if(!this->writeFileSignature(stream)) {
+    SDL_Log("Failed to write file signature in save file");
+    return false;
+  }
+
+  if(!this->writeName(stream, this->save_data.name)) {
+    SDL_Log("Failed to write player name in save file");
+    return false;
+  }
+
+  if(!Utils::writeReservedBytes(stream, 3)) {
+    SDL_Log("Failed to write reserved bytes in save file");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, this->save_data.money)) {
+    SDL_Log("Failed to write money in save file");
+    return false;
+  }
+
+  if(!Utils::writeReservedBytes(stream, 4)) {
+    SDL_Log("Failed to write reserved bytes in save file");
+    return false;
+  }
+
+  if(!this->writeTimestamp(stream)) {
+    SDL_Log("Failed to write timestamp in save file");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, this->save_data.selected_car)) {
+    SDL_Log("Failed to write selected car in save file");
+    return false;
+  }
+
+  if(!this->writeOwnedCars(stream)) {
+    SDL_Log("Failed to write owned cars in save file");
+    return false;
+  }
+
+  if(!this->writeSettings(stream)) {
+    SDL_Log("Failed to write settings in save file");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, this->save_data.current_league)) {
+    SDL_Log("Failed to write current league in save file");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, (uint8_t) this->save_data.all_leagues_completed)) {
+    SDL_Log("Failed to write if all leagues have been completed in save file");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, (uint8_t) this->save_data.league1_unlocked)) {
+    SDL_Log("Failed to write if league 1 is unlocked in save file");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, (uint8_t) this->save_data.league2_unlocked)) {
+    SDL_Log("Failed to write if league 2 is unlocked in save file");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, (uint8_t) this->save_data.league_introduction_watched)) {
+    SDL_Log("Failed to write if the league introduction was watched in save file");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, this->save_data.league_to_show_introduction_for)) {
+    SDL_Log("Failed to write league to show introduction for in save file");
+    return false;
+  }
+
+  if(!SDL_WriteIO(stream, this->save_data.unknown1, 3)) {
+    SDL_Log("Failed to write unknown1 in save file");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, this->save_data.races_completed_in_current_league)) {
+    SDL_Log("Failed to write races completed in current league in save file");
+    return false;
+  }
+
+  if(!SDL_WriteIO(stream, this->save_data.unknown2, 3)) {
+    SDL_Log("Failed to write unknown2 in save file");
+    return false;
+  }
+
+  for(int i = 0; i < 10; i++) {
+    if(!SDL_WriteU8(stream, this->save_data.league_has_race[i])) {
+      SDL_Log("Failed to write league has race list in save file");
+      return false;
+    }
+  }
+
+  if(!this->writeLeagueData(stream, &this->save_data.league0)) {
+    SDL_Log("Failed to write league 0 data in save file");
+    return false;
+  }
+
+  if(!this->writeLeagueData(stream, &this->save_data.league1)) {
+    SDL_Log("Failed to write league 1 data in save file");
+    return false;
+  }
+
+  if(!this->writeLeagueData(stream, &this->save_data.league2)) {
+    SDL_Log("Failed to write league 2 data in save file");
+    return false;
+  }
+
+  if(!SDL_WriteIO(stream, this->save_data.unknown3, 6)) {
+    SDL_Log("Failed to write unknown3 in save file");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, this->save_data.unknown4)) {
+    SDL_Log("Failed to write unknown4 in save file");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, this->save_data.unknown5)) {
+    SDL_Log("Failed to write unknown5 in save file");
+    return false;
+  }
+
+  for(int i = 0; i < CAR_COUNT; i++) {
+    if(!SDL_WriteU8(stream, this->save_data.league0_car_unlocked[i])) {
+      SDL_Log("Failed to write league 0 unlocked cars in save file");
+      return false;
+    }
+  }
+
+  for(int i = 0; i < CAR_COUNT; i++) {
+    if(!SDL_WriteU8(stream, this->save_data.league1_car_unlocked[i])) {
+      SDL_Log("Failed to write league 1 unlocked cars in save file");
+      return false;
+    }
+  }
+
+  for(int i = 0; i < CAR_COUNT; i++) {
+    if(!SDL_WriteU8(stream, this->save_data.league2_car_unlocked[i])) {
+      SDL_Log("Failed to write league 2 unlocked cars in save file");
+      return false;
+    }
+  }
+
+  if(!SDL_WriteU32LE(stream, this->save_data.track_to_unlock_count)) {
+    SDL_Log("Failed to write track to unlock count in save file");
+    return false;
+  }
+
+  for(size_t i = 0; i < this->save_data.track_to_unlock_count; i++) {
+    if(!SDL_WriteU8(stream, (uint8_t) this->save_data.track_unlocked[i])) {
+      SDL_Log("Failed to write if track %lu was unlocked to save data", i);
+      return false;
+    }
+  }
+
+  if(!SDL_WriteU32LE(stream, this->save_data.track_count)) {
+    SDL_Log("Failed to write track count in save file");
+    return false;
+  }
+
+  for(size_t i = 0; i < this->save_data.track_count; i++) {
+    if(!SDL_WriteU32LE(stream, this->save_data.best_finish_position[i])) {
+      SDL_Log("Failed to write best finish position for track %lu to save data", i);
+      return false;
+    }
+  }
+
+  if(!SDL_WriteU32LE(stream, this->save_data.time_trial_track_count)) {
+    SDL_Log("Failed to write time trial track count in save file");
+    return false;
+  }
+
+  for(size_t i = 0; i < this->save_data.time_trial_track_count; i++) {
+    if(!SDL_WriteU8(stream, (uint8_t) this->save_data.time_trial_beaten[i])) {
+      SDL_Log("Failed to write if track %lu was beaten in time trial to save data", i);
+      return false;
+    }
+  }
+
+  if(!this->writeRaceRecords(stream, &this->save_data.last_race_records)) {
+    SDL_Log("Failed to write records from last race to save data");
+    return false;
+  }
+
+  return true;
+}
+
 bool SaveHandler::readOwnedCars(SDL_IOStream *stream)
 {
   if(!SDL_ReadU32LE(stream, &this->save_data.owned_car_count)) {
@@ -378,6 +572,64 @@ bool SaveHandler::readOwnedCars(SDL_IOStream *stream)
       SDL_Log("Car id %u is invalid", car->car_id);
       free(this->save_data.owned_cars);
       this->save_data.owned_cars = nullptr;
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool SaveHandler::writeOwnedCars(SDL_IOStream *stream)
+{
+  if(!SDL_WriteU32LE(stream, this->save_data.owned_car_count)) {
+    SDL_Log("Failed to write owned car count");
+    return false;
+  }
+
+  if(this->save_data.selected_car >= this->save_data.owned_car_count) {
+    SDL_Log("Selected car is outside of owned car count, failing");
+    return false;
+  }
+
+  for(size_t i = 0; i < this->save_data.owned_car_count; i++) {
+    OwnedCar * car = &this->save_data.owned_cars[i];
+    if(!SDL_WriteU32LE(stream, car->damage_percentage)) {
+      SDL_Log("Failed to write damage percentage count");
+      return false;
+    }
+
+    if(!SDL_WriteU8(stream, (uint8_t) car->engine_upgraded)) {
+      SDL_Log("Failed to write if the engine was upgraded");
+      return false;
+    }
+
+    if(!SDL_WriteU8(stream, (uint8_t) car->tires_upgraded)) {
+      SDL_Log("Failed to write if the tires were upgraded");
+      return false;
+    }
+
+    if(!SDL_WriteU8(stream, (uint8_t) car->nitrous_upgraded)) {
+      SDL_Log("Failed to write if the nitrous was installed");
+      return false;
+    }
+
+    if(!SDL_WriteU8(stream, (uint8_t) car->brakes_upgraded)) {
+      SDL_Log("Failed to write if the brakes were upgraded");
+      return false;
+    }
+
+    if(!SDL_WriteU8(stream, (uint8_t) car->gearbox_upgraded)) {
+      SDL_Log("Failed to write if the gearbox was upgraded");
+      return false;
+    }
+
+    if(!SDL_WriteU8(stream, car->league)) {
+      SDL_Log("Failed to write league of car");
+      return false;
+    }
+
+    if(!SDL_WriteU8(stream, car->car_id)) {
+      SDL_Log("Failed to write id of car");
       return false;
     }
   }
@@ -507,6 +759,112 @@ bool SaveHandler::readSettings(SDL_IOStream *stream)
   return true;
 }
 
+bool SaveHandler::writeSettings(SDL_IOStream *stream)
+{
+  Settings * settings = &this->save_data.settings;
+  if(!SDL_WriteU32LE(stream, settings->resolution_id)) {
+    SDL_Log("Failed to write resolution id to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, settings->sound_fx_volume)) {
+    SDL_Log("Failed to write sound fx volume to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, settings->music_volume)) {
+    SDL_Log("Failed to write music volume to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, settings->police_volume)) {
+    SDL_Log("Failed to write police volume to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, (uint8_t) settings->sound_fx_enabled)) {
+    SDL_Log("Failed to write if sound effects are enabled from settings");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, (uint8_t) settings->music_enabled)) {
+    SDL_Log("Failed to write if music is enabled from settings");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, settings->mystery_value1)) {
+    SDL_Log("Failed to write mystery value 1 to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, settings->mystery_value2)) {
+    SDL_Log("Failed to write mystery value 2 to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, (uint8_t) settings->info_screen_enabled)) {
+    SDL_Log("Failed to write if info screen is enabled to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, settings->mystery_value3)) {
+    SDL_Log("Failed to write mystery value 3 to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, (uint8_t) settings->police_sound_enabled)) {
+    SDL_Log("Failed to write if police sound is enabled to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, (uint32_t) settings->keycode_accelerate)) {
+    SDL_Log("Failed to write accelerate keycode to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, (uint32_t) settings->keycode_brake)) {
+    SDL_Log("Failed to write brake keycode to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, (uint32_t) settings->keycode_left)) {
+    SDL_Log("Failed to write left keycode to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, (uint32_t) settings->keycode_right)) {
+    SDL_Log("Failed to write right keycode to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, (uint32_t) settings->keycode_boost)) {
+    SDL_Log("Failed to write boost keycode to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, (uint32_t) settings->keycode_handbrake)) {
+    SDL_Log("Failed to write handbrake keycode to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, (uint32_t) settings->keycode_horn)) {
+    SDL_Log("Failed to write horn keycode to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, (uint32_t) settings->input_method)) {
+    SDL_Log("Failed to write input method to settings");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, settings->steering_sensitivity)) {
+    SDL_Log("Failed to write steering sensitivity to settings");
+    return false;
+  }
+
+  return true;
+}
+
 bool SaveHandler::readRaceRecordEntry(SDL_IOStream *stream, RaceRecordEntry *race_record_entry)
 {
   if(!Utils::readBoolean(stream, &race_record_entry->is_player)) {
@@ -546,6 +904,41 @@ bool SaveHandler::readRaceRecordEntry(SDL_IOStream *stream, RaceRecordEntry *rac
   return true;
 }
 
+bool SaveHandler::writeRaceRecordEntry(SDL_IOStream *stream, RaceRecordEntry *race_record_entry)
+{
+  if(!SDL_WriteU8(stream, (uint8_t) race_record_entry->is_player)) {
+    SDL_Log("Failed to get if record entry is for a player");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, race_record_entry->position)) {
+    SDL_Log("Failed to write position to record entry");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, race_record_entry->time)) {
+    SDL_Log("Failed to write time to record entry");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, race_record_entry->league)) {
+    SDL_Log("Failed to write league to record entry");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, race_record_entry->car)) {
+    SDL_Log("Failed to write car to record entry");
+    return false;
+  }
+
+  if(!this->writeName(stream, race_record_entry->name)) {
+    SDL_Log("Failed to write name to record entry");
+    return false;
+  }
+
+  return true;
+}
+
 bool SaveHandler::readRaceRecords(SDL_IOStream *stream, RaceRecords *race_records)
 {
   if(!SDL_ReadU32LE(stream, &race_records->racer_count)) {
@@ -555,7 +948,7 @@ bool SaveHandler::readRaceRecords(SDL_IOStream *stream, RaceRecords *race_record
   if(race_records->racer_count > 0) {
     race_records->records = (RaceRecordEntry *) calloc(race_records->racer_count, sizeof(RaceRecordEntry));
     for(size_t i = 0; i < race_records->racer_count; i++) {
-      if(!readRaceRecordEntry(stream, &race_records->records[i])) {
+      if(!this->readRaceRecordEntry(stream, &race_records->records[i])) {
         SDL_Log("Failed to get entry from record data");
         free(race_records->records);
         race_records->records = nullptr;
@@ -589,6 +982,34 @@ bool SaveHandler::readRaceRecords(SDL_IOStream *stream, RaceRecords *race_record
   return true;
 }
 
+bool SaveHandler::writeRaceRecords(SDL_IOStream *stream, RaceRecords *race_records)
+{
+  if(!SDL_WriteU32LE(stream, race_records->racer_count)) {
+    SDL_Log("Failed to write count to record data");
+    return false;
+  }
+  for(size_t i = 0; i < race_records->racer_count; i++) {
+    if(!this->writeRaceRecordEntry(stream, &race_records->records[i])) {
+      SDL_Log("Failed to write entry to record data");
+      return false;
+    }
+  }
+
+  if(!SDL_WriteU32LE(stream, race_records->lap_count)) {
+    SDL_Log("Failed to write lap count to record data");
+    return false;
+  }
+
+  for(size_t i = 0; i < race_records->lap_count; i++) {
+    if(!SDL_WriteU32LE(stream, race_records->player_lap_times[i])) {
+      SDL_Log("Failed to write player lap time to record data");
+      return false;
+    }
+  }
+
+  return true;
+}
+
 bool SaveHandler::readLeaguePointsEntry(SDL_IOStream *stream, LeaguePointsEntry *league_points_entry)
 {
   if(!SDL_ReadU32LE(stream, &league_points_entry->points)) {
@@ -614,6 +1035,31 @@ bool SaveHandler::readLeaguePointsEntry(SDL_IOStream *stream, LeaguePointsEntry 
   return true;
 }
 
+bool SaveHandler::writeLeaguePointsEntry(SDL_IOStream *stream, LeaguePointsEntry *league_points_entry)
+{
+  if(!SDL_WriteU32LE(stream, league_points_entry->points)) {
+    SDL_Log("Failed to write points to league points entry");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, (uint8_t) league_points_entry->is_player)) {
+    SDL_Log("Failed to write is player to league points entry");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, league_points_entry->league)) {
+    SDL_Log("Failed to write league to league points entry");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, league_points_entry->last_finish_position)) {
+    SDL_Log("Failed to write last finish position to league points entry");
+    return false;
+  }
+
+  return true;
+}
+
 bool SaveHandler::readLeagueData(SDL_IOStream *stream, LeagueData *league_data)
 {
   if(!SDL_ReadU32LE(stream, &league_data->record_count)) {
@@ -623,7 +1069,7 @@ bool SaveHandler::readLeagueData(SDL_IOStream *stream, LeagueData *league_data)
   if(league_data->record_count > 0) {
     league_data->race_records = (RaceRecords *) calloc(league_data->record_count, sizeof(RaceRecords));
     for(size_t i = 0; i < league_data->record_count; i++) {
-      if(!readRaceRecords(stream, &league_data->race_records[i])) {
+      if(!this->readRaceRecords(stream, &league_data->race_records[i])) {
         SDL_Log("Failed to get record from league data");
         free(league_data->race_records);
         league_data->race_records = nullptr;
@@ -741,6 +1187,70 @@ bool SaveHandler::readLeagueData(SDL_IOStream *stream, LeagueData *league_data)
   return true;
 }
 
+bool SaveHandler::writeLeagueData(SDL_IOStream *stream, LeagueData *league_data)
+{
+  if(!SDL_WriteU32LE(stream, league_data->record_count)) {
+    SDL_Log("Failed to write record count to league data");
+    return false;
+  }
+
+  for(size_t i = 0; i < league_data->record_count; i++) {
+    if(!this->writeRaceRecords(stream, &league_data->race_records[i])) {
+      SDL_Log("Failed to write record to league data");
+      return false;
+    }
+  }
+
+  if(!SDL_WriteU8(stream, league_data->racer_count)) {
+    SDL_Log("Failed to write racer count to league data");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, league_data->unknown1)) {
+    SDL_Log("Failed to write unknown1 to league data");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, league_data->unknown2)) {
+    SDL_Log("Failed to write unknown2 to league data");
+    return false;
+  }
+
+  if(!SDL_WriteU8(stream, league_data->unknown3)) {
+    SDL_Log("Failed to get unknown3 from league data");
+    return false;
+  }
+
+  for(size_t i = 0; i < league_data->racer_count; i++) {
+    if(!this->writeLeaguePointsEntry(stream, &league_data->league_points_entries[i])) {
+      SDL_Log("Failed to write league points entry to league data");
+      return false;
+    }
+  }
+
+  if(!SDL_WriteU32LE(stream, league_data->unknown4)) {
+    SDL_Log("Failed to write unknown4 to league data");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, league_data->unknown5)) {
+    SDL_Log("Failed to write unknown5 to league data");
+    return false;
+  }
+
+  if(!SDL_WriteU32LE(stream, league_data->track_total_count)) {
+    SDL_Log("Failed to write track total count to league data");
+    return false;
+  }
+
+  if(!SDL_WriteIO(stream, &league_data->unknown6, 10)) {
+    SDL_Log("Failed to write unknown6 to league data");
+    return false;
+  }
+
+  return true;
+}
+
 bool SaveHandler::readFileSignature(SDL_IOStream *stream)
 {
   if(SDL_TellIO(stream) != 0) {
@@ -764,6 +1274,26 @@ bool SaveHandler::readFileSignature(SDL_IOStream *stream)
   }
   if(signature[0] != 'R' || signature[1] != 'C' || signature[2] != 'R' ) {
     SDL_Log("Signature does not match expected value RCR");
+    return false;
+  }
+
+  return true;
+}
+
+bool SaveHandler::writeFileSignature(SDL_IOStream *stream)
+{
+  if(SDL_TellIO(stream) != 0) {
+    SDL_Log("The file signature can only be written from the beginning of the file");
+    return false;
+  }
+
+  uint8_t signature[4];
+  signature[0] = 3;
+  signature[1] = 'R';
+  signature[2] = 'C';
+  signature[3] = 'R';
+  if(!SDL_WriteIO(stream, (void *) signature, 4)) {
+    SDL_Log("Could not write signature: %s", SDL_GetError());
     return false;
   }
 
@@ -796,7 +1326,26 @@ bool SaveHandler::readName(SDL_IOStream *stream, std::string *output_string)
   return true;
 }
 
-bool SaveHandler::readTimestamp(SDL_IOStream *stream, SDL_DateTime *date_time) {
+bool SaveHandler::writeName(SDL_IOStream *stream, std::string &input_string)
+{
+  uint8_t output_length = 0;
+  void * output_string = Utils::stringToWindows1252(input_string, &output_length);
+  if(!output_string) {
+    SDL_Log("Could not convert name to Windows-1252");
+    return false;
+  }
+  if(!SDL_WriteU8(stream, output_length)) {
+    SDL_Log("Could not write name length: %s", SDL_GetError());
+    return false;
+  }
+  if(!SDL_WriteIO(stream, output_string, 32)) {
+    SDL_Log("Could not write name: %s", SDL_GetError());
+    return false;
+  }
+  return true;
+}
+
+bool SaveHandler::readTimestamp(SDL_IOStream *stream) {
   uint64_t data = 0;
   if(!SDL_ReadU64LE(stream, &data)) {
     SDL_Log("Could not timestamp: %s", SDL_GetError());
@@ -808,7 +1357,26 @@ bool SaveHandler::readTimestamp(SDL_IOStream *stream, SDL_DateTime *date_time) {
   // Conversion from OLE automation format to unix timestamp
   // There is a 25569 day difference between unix timestamps and OLE automation format
   SDL_Time timestamp = (ole_timestamp - 25569.0) * 24.0 * 3600.0 * 1e9;
-  SDL_TimeToDateTime(timestamp, date_time, false);
-  SDL_Log("%02d/%02d/%d %02d:%02d:%02d", date_time->day, date_time->month, date_time->year, date_time->hour, date_time->minute, date_time->second);
+  SDL_TimeToDateTime(timestamp, &this->save_data.timestamp, false);
+  SDL_Log("%02d/%02d/%d %02d:%02d:%02d", this->save_data.timestamp.day, this->save_data.timestamp.month, this->save_data.timestamp.year, this->save_data.timestamp.hour, this->save_data.timestamp.minute, this->save_data.timestamp.second);
+  return true;
+}
+
+bool SaveHandler::writeTimestamp(SDL_IOStream *stream)
+{
+  SDL_Time unix_timestamp;
+  if(!SDL_DateTimeToTime(&this->save_data.timestamp, &unix_timestamp)) {
+    SDL_Log("Could not convert date time to unix timestamp: %s", SDL_GetError());
+    return false;
+  }
+  double timestamp = (double) unix_timestamp / 24.0 / 3600.0 / 1e9 + 25569.0;
+  uint64_t timestamp_data;
+  std::memcpy(&timestamp_data, &timestamp, sizeof(uint64_t));
+
+  if(!SDL_WriteU64LE(stream, timestamp_data)) {
+    SDL_Log("Could not write timestamp: %s", SDL_GetError());
+    return false;
+  }
+
   return true;
 }

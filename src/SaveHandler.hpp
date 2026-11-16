@@ -132,17 +132,27 @@ private:
   void unload();
 
   bool readSaveData(SDL_IOStream * stream);
+  bool writeSaveData(SDL_IOStream * stream);
 
   bool readOwnedCars(SDL_IOStream * stream);
+  bool writeOwnedCars(SDL_IOStream * stream);
   bool readSettings(SDL_IOStream * stream);
+  bool writeSettings(SDL_IOStream * stream);
   bool readRaceRecordEntry(SDL_IOStream * stream, RaceRecordEntry * race_record_entry);
+  bool writeRaceRecordEntry(SDL_IOStream * stream, RaceRecordEntry * race_record_entry);
   bool readRaceRecords(SDL_IOStream * stream, RaceRecords * race_records);
+  bool writeRaceRecords(SDL_IOStream * stream, RaceRecords * race_records);
   bool readLeaguePointsEntry(SDL_IOStream * stream, LeaguePointsEntry * league_points_entry);
+  bool writeLeaguePointsEntry(SDL_IOStream * stream, LeaguePointsEntry * league_points_entry);
   bool readLeagueData(SDL_IOStream * stream, LeagueData * league_data);
+  bool writeLeagueData(SDL_IOStream * stream, LeagueData * league_data);
   
   bool readFileSignature(SDL_IOStream * stream);
+  bool writeFileSignature(SDL_IOStream * stream);
   bool readName(SDL_IOStream * stream, std::string * output_string);
-  bool readTimestamp(SDL_IOStream * stream, SDL_DateTime *date_time);
+  bool writeName(SDL_IOStream * stream, std::string &input_string);
+  bool readTimestamp(SDL_IOStream * stream);
+  bool writeTimestamp(SDL_IOStream * stream);
 
 };
 

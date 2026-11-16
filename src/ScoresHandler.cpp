@@ -125,13 +125,14 @@ bool ScoresHandler::write()
         return false;
       }
       for(int32_t i = 0; i < (int32_t) this->lap_records[track][league].size(); i++) {
-        if(!SDL_WriteU8(stream, (uint8_t) this->lap_records[track][league][i].name.size())) {
+        uint8_t name_length = 0;
+        void * name_data = Utils::stringToWindows1252(this->lap_records[track][league][i].name, &name_length);
+        if(!SDL_WriteU8(stream, name_length)) {
           SDL_Log("Could not write name length for entry %u for track %u", i, track);
           SDL_CloseIO(stream);
           return false;
         }
-        void * name_data = Utils::stringToWindows1252(this->lap_records[track][league][i].name);
-        if(!SDL_WriteIO(stream, name_data, 32)) {
+        if(!name_data || !SDL_WriteIO(stream, name_data, 32)) {
           SDL_Log("Could not write name for entry %u for track %u", i, track);
           SDL_CloseIO(stream);
           return false;
@@ -158,12 +159,13 @@ bool ScoresHandler::write()
         return false;
       }
       for(int32_t i = 0; i < (int32_t) this->total_records[track][league].size(); i++) {
-        if(!SDL_WriteU8(stream, (uint8_t) this->total_records[track][league][i].name.size())) {
+        uint8_t name_length = 0;
+        void * name_data = Utils::stringToWindows1252(this->total_records[track][league][i].name, &name_length);
+        if(!SDL_WriteU8(stream, name_length)) {
           SDL_Log("Could not write name length for entry %u for track %u", i, track);
           SDL_CloseIO(stream);
           return false;
         }
-        void * name_data = Utils::stringToWindows1252(this->total_records[track][league][i].name);
         if(!SDL_WriteIO(stream, name_data, 32)) {
           SDL_Log("Could not write name for entry %u for track %u", i, track);
           SDL_CloseIO(stream);
