@@ -143,7 +143,7 @@ Action MenuManager::update(std::vector<Input> inputs)
       break;
     case Action::OPEN_SETTINGS:
       delete this->menu;
-      this->menu = new Settings();
+      this->menu = new Settings(this->game_ini_handler);
       current_menu = Menu::SETTINGS;
       break;
     case Action::OPEN_TRACK_INFO:
