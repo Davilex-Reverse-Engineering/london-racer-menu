@@ -67,7 +67,6 @@ int main(int argc, char** argv) {
   SaveHandler save_handler;
   if (!save_handler.load()) {
     SDL_Log("Could not load save data");
-    return 8;
   }
 
   InputManager input_manager = InputManager(renderer);
